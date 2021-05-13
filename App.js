@@ -18,7 +18,7 @@ export default function App() {
 
 const AppDrawerNavigator = createDrawerNavigator({ 
   Login: {  
-      screen: LoginStackNavigator  
+      screen: LoginStackNavigator  ,
    },  
    Registration: {  
       screen: RegistrationStackNavigator  
