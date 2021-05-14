@@ -36,6 +36,7 @@ class Registration extends Component{
         if(this.state.checkLogin>0){
             console.warn(responseJson);
             Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
+            this.props.navigation.navigate('Login');
         }
         else{
            // console.warn(responseJson);
@@ -84,7 +85,7 @@ const styless = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#A9F5F2',
   },
   title:{
     fontSize:30,
