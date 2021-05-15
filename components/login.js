@@ -88,7 +88,9 @@ const styless = StyleSheet.create({
     fontSize:16,
     color:colors.main_blue,
     position:'absolute',
-    top:hp('98%')
+    top:hp('98%'),
+    alignSelf: 'center',
+    alignItems: "center",
   }, 
 });
 class Login extends Component {  
@@ -160,15 +162,14 @@ class Login extends Component {
                 <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Profile')}} style={styless.btnLogin}>
                     <Text style={styless.txtLogin}>Login</Text>
                 </TouchableOpacity>
-                    <Text style={{flex:1}} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text>
+                <Text style={{flex:1}} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text>
          
               </View>
         {/* <Button title="Go to Home"/> */}
         {/* <HomeScreen /> */}
         
-            </View>
             <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
-            
+            </View>
           </ImageBackground>
           // </View>
           );  

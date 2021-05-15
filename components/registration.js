@@ -56,7 +56,8 @@ class Registration extends Component{
       <ImageBackground source={require('../assets/brReg.jpg')} style={styless.image}>
          
       <View style={styless.container}>
-      {/* <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/> */}
+      <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
+      <View style ={{flex:4}}>
         <Text style={{fontSize:20,color:'white',fontWeight: "bold"}}>Information for your account</Text>
         <TextInput placeholder="Full name"
            placeholderTextColor={colors.main_blue}
@@ -78,9 +79,12 @@ class Registration extends Component{
         <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={styless.btnReg}>
             <Text style={styless.txtReg}>Registration</Text>
         </TouchableOpacity>
+        </View>
+        <View style={{flex:1}}>
         <Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Login</Text>
         {/* <Button title="Go to Home"/> */}
         {/* <HomeScreen /> */}
+      </View>
       </View>
       </ImageBackground>
     );
@@ -169,7 +173,8 @@ const styless = StyleSheet.create({
     fontSize:16,
     color:colors.white,
     position:'absolute',
-    top:DEVICE_HEIGHT - 20,
+    // top:DEVICE_HEIGHT - 20,
+    alignItems: "center"
     
   }
   

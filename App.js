@@ -50,6 +50,9 @@ const AppDrawerNavigator1 = createDrawerNavigator({
   Profile: {  
       screen: ProfileStackNavigator
   },
+  Logout:{
+    screen: LoginStackNavigator 
+  }
 },{
   contentComponent:Custom_AppDrawerNavigator1
 });
