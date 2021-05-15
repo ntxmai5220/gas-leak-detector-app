@@ -90,8 +90,11 @@ const styless = StyleSheet.create({
   txtReg:{
     fontSize:16,
     color:colors.main_blue,
-    position:'absolute',
-    top:DEVICE_HEIGHT + 50
+    // position:'absolute',
+    position: 'relative',
+    marginTop: 10,
+    // backgroundColor: 'red',
+    // top:DEVICE_HEIGHT + 10
   }, 
 });
 class Login extends Component {  
@@ -138,38 +141,40 @@ class Login extends Component {
       });
     }
     render() {  
-        return ( 
+      return ( 
           // <View style={styless.container}>
-            <ImageBackground source={require('../assets/login-background.png')} style={styless.image}>
-              <View style={styless.container,{flex:1}}>
-        <View style={{flex:1, alignItems:'center'}}></View>
-        <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
-        <View style={{flex:2, alignItems:'center'}}></View>
+        <ImageBackground source={require('../assets/login-background.png')} style={styless.image}>
+          <View style={styless.container,{flex:1}}>
+            <View style={{flex:1, alignItems:'center'}}></View>
+            <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
+            <View style={{flex:2, alignItems:'center'}}></View>
 
-        <View style={{flex:4, alignItems: 'center'}}>
-          <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your username and password</Text>
-          <TextInput placeholder="Username"
-              placeholderTextColor={colors.main_blue}
-              underlineColorAndroid="transparent"
-              style={styless.txtInput}  onChangeText={(username) => this.setState({username:username})}/>
-          <TextInput placeholder="Password"
-              placeholderTextColor={colors.main_blue}
-              underlineColorAndroid="transparent"
-              secureTextEntry={true}
-              style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
-          <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
-              <Text style={styless.txtLogin}>Login</Text>
-          </TouchableOpacity>
-         
-        </View>
-        {/* <Button title="Go to Home"/> */}
-        {/* <HomeScreen /> */}
+            <View style={{flex:4, alignItems: 'center'}}>
+              <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your username and password</Text>
+              <TextInput placeholder="Username"
+                  placeholderTextColor={colors.main_blue}
+                  underlineColorAndroid="transparent"
+                  style={styless.txtInput}  onChangeText={(username) => this.setState({username:username})}/>
+              <TextInput placeholder="Password"
+                  placeholderTextColor={colors.main_blue}
+                  underlineColorAndroid="transparent"
+                  secureTextEntry={true}
+                  style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
+              <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
+                  <Text style={styless.txtLogin}>Login</Text>
+              </TouchableOpacity>
+          
+              <Text style={{flex: 1}, styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
+              <Text style={{flex: 1}, styless.txtReg} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text>
+            </View>
+          {/* <Button title="Go to Home"/> */}
+          {/* <HomeScreen /> */}
         
-      </View>
-              <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
-            </ImageBackground>
+          </View>
+          
+        </ImageBackground>
           // </View>
-          );  
+      );  
     }
 }  
 const LoginStackNavigator = createStackNavigator(  
