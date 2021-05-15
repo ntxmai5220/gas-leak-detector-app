@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View,useWindowDimensions } from 'react-native';
+import { StyleSheet, Text, Image, View, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
 import LoginStackNavigator from './components/login';
 import RegistrationStackNavigator from './components/registration';
 import ProfileStackNavigator from './components/profile';
@@ -12,7 +12,9 @@ import {
    
 } from 'react-navigation';  
 import { createStackNavigator } from 'react-navigation-stack';
-import { createDrawerNavigator } from 'react-navigation-drawer'
+import { createDrawerNavigator, DrawerItems} from 'react-navigation-drawer';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
 export default function App() {
   return (
     <AppContainer />
@@ -26,15 +28,31 @@ const AppDrawerNavigator = createDrawerNavigator({
    Registration: {  
       screen: RegistrationStackNavigator  
   }});
+
+const Custom_AppDrawerNavigator1=(props)=>(
+  <SafeAreaView>
+    {/* <View></View> */}
+    <View style={{height: hp('30%'),alignItems:'center',justifyContent:'center'}}>
+    <Image source={require('./assets/logo.png')} style={{height:wp('35%'),width:wp('35%'),alignSelf:'center'}}/>
+    </View>
+    <ScrollView>
+      <DrawerItems {...props}/>
+    </ScrollView>
+  </SafeAreaView>
+);
 const AppDrawerNavigator1 = createDrawerNavigator({ 
-  Dashboard:{screen:DashboardStackNavigator},
-    History: {  
-        screen: HistoryStackNavigator,
-     },  
-    Profile: {
+  Dashboard:{  
+      screen: DashboardStackNavigator
+  },
+  History: {  
+      screen: HistoryStackNavigator
+  },  
+  Profile: {  
       screen: ProfileStackNavigator
-    }
-  });
+  },
+},{
+  contentComponent:Custom_AppDrawerNavigator1
+});
 
 const AppSwitchNavigator = createSwitchNavigator({ 
   Login: { screen: AppDrawerNavigator }, 
@@ -56,4 +74,3 @@ const AppSwitchNavigator = createSwitchNavigator({
 //   );
 // }
 const AppContainer = createAppContainer(AppSwitchNavigator);  
-
