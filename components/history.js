@@ -33,6 +33,9 @@ class History extends Component{
                 <View style={styles.calendar}>
 
                     <Calendar
+                        current={Date.now()}
+                        minDate={Date.now() - 12096e5}
+                        maxDate={Date.now()}
                         onDayPress={(day) => {this._date_submit(day)}}
                     />
                 </View>

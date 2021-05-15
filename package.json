@@ -20,6 +20,7 @@
     "react-native-reanimated": "^2.1.0",
     "react-native-responsive-screen": "^1.4.2",
     "react-native-screens": "~3.0.0",
+    "react-native-svg": "^12.1.1",
     "react-native-web": "^0.16.2",
     "react-navigation": "^4.4.4",
     "react-navigation-drawer": "^2.7.1",
