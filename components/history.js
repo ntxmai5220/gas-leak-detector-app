@@ -5,6 +5,7 @@ import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
+import HistoryDetail from './historyDetail';
 
 const styles = StyleSheet.create({
     container: {
@@ -25,6 +26,7 @@ class History extends Component{
     };
     _date_submit = (day) => {
         console.log("do some thing with this: ", day);
+        this.props.navigation.navigate('HistoryDetail', { day: day });
     };
     render(){
         return (
@@ -44,7 +46,8 @@ class History extends Component{
     };
 const HistoryStackNavigator = createStackNavigator(  
     {  
-        LoginNavigator: History  
+        History: History,
+        HistoryDetail: HistoryDetail
     },
     {  
         defaultNavigationOptions: ({ navigation }) => {  
