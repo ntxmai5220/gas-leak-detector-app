@@ -1,8 +1,9 @@
 import React, { Component } from 'react';  
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
-import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button} from 'react-native'; 
+import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button,ScrollView} from 'react-native'; 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { createStackNavigator } from 'react-navigation-stack';
+import { Table, TableWrapper, Row } from 'react-native-table-component';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import colors from '../assets/colors'
@@ -16,10 +17,10 @@ const style=StyleSheet.create({
         borderRadius:250,
         borderColor:"black",
         resizeMode: "cover",
-        backgroundColor:"#58D3F7"
+        //backgroundColor:"#58D3F7"
     },
     padd_text:{
-        flex:1,
+        flex:0.5,
         paddingRight:hp('10%'),
         // borderRadius:30,
     borderWidth:3,
@@ -63,7 +64,23 @@ class Profile extends Component{
     static navigationOptions = {  
         title: 'Profile',  
    };  
+   constructor(props) {
+    super(props);
+    this.state = {
+      tableHead: ['ID', 'Name', 'Time', 'State'],
+      widthArr: [50,200,100,100]
+    }
+  }
+
 render(){
+    const state = this.state;
+    const data = [];
+      data.push(['1','Gas sensor',(new Date()).getDate(),'on']);
+      data.push(['2','Temperature sensor',(new Date()).getDate(),'on']);
+      data.push(['3','Pump',(new Date()).getDate(),'off']);
+      data.push(['4','Fan',(new Date()).getDate(),'on']);
+      console.log(data);
+        
     return (
            <View style={{flex:1}}>
                <View style={{flex:0.2}}></View>
@@ -73,14 +90,62 @@ render(){
             
             <Text style={style.padd_text}>Email</Text>
             {/* <Text style={{flex:1}}>Name</Text> */}
-            <Text style={{flex:3,fontSize:20}}>Device</Text>
+            <View style={{flex:6}}>
+            <Text style={{flex:1,fontSize:20}}>Device</Text>
             {/* <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Profile')}} style={style.btnLogin}>
                     <Text style={style.txtLogin}>Add Device</Text>
                 </TouchableOpacity> */}
-        
+                <View style={[styles.container,{flex:8}]}>
+        <ScrollView horizontal={true}>
+          <View>
+            <Table borderStyle={{borderColor: '#C1C0B9'}}>
+              <Row data={state.tableHead} widthArr={state.widthArr} style={styles.head} textStyle={styles.text}/>
+            </Table>
+            <ScrollView style={styles.dataWrapper}>
+              <Table borderStyle={{borderColor: '#C1C0B9'}}>
+                {
+                  data.map((dataRow, index) => (
+                    <Row
+                      key={index}
+                      data={dataRow}
+                      widthArr={state.widthArr}
+                      style={[styles.row, index%2 && {backgroundColor: '#ffffff'}]}
+                      textStyle={styles.text}
+                    />
+                  ))
+                }
+              </Table>
+            </ScrollView>
+          </View>
+        </ScrollView>
+      </View>
+      </View>
     </View>
     )}
 };
+const styles = StyleSheet.create({
+    container: { 
+      flex: 1, 
+      padding: 16, 
+      paddingTop: 30, 
+      backgroundColor: '#ffffff' 
+    },
+    head: { 
+      height: 50, 
+      backgroundColor: '#6F7BD9' 
+    },
+    text: { 
+      textAlign: 'center', 
+      fontWeight: '200' 
+    },
+    dataWrapper: { 
+      marginTop: -1 
+    },
+    row: { 
+      height: 40, 
+      backgroundColor: '#F7F8FA' 
+    }
+  });
 const ProfileStackNavigator = createStackNavigator(  
     {  
         LoginNavigator: Profile  
