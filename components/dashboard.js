@@ -1,4 +1,4 @@
-import React, { Component } from 'react';  
+import React, { Component, useState } from 'react';  
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
 import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button, ScrollView} from 'react-native'; 
 import { createStackNavigator } from 'react-navigation-stack';
@@ -9,6 +9,15 @@ import {
   LineChart
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
+// import USER from '../global/user';
+
+import {AsyncStorage} from "react-native";
+import init from 'react_native_mqtt';
+import uuid from 'react-native-uuid';
+
+
+
 /*
   TODO:
   1.  Viết hàm get nhiệt theo 3 giờ 1 lần cho chart như mẫu,
@@ -59,58 +68,146 @@ const CustomChart = () => {
   );
 };
 
+const USER = {
+    host: 'io.adafruit.com',
+    port: 80,
+    userName: 'johnwick123',
+    password: 'aio_CcoE07SSRBCbwtpS9043so5byw6G',
+}
+const topics = [
+    'johnwick123/feeds/dummy',
+    'johnwick123/feeds/dummy',
+]
+
+init({
+    size: 10000,
+    storageBackend: AsyncStorage,
+    defaultExpires: 1000 * 3600 * 24,
+    enableCache: true,
+    sync: {},
+});
+const defaultConnectOptions = {
+    reconnect: false,
+    cleanSession: true,
+    mqttVersion: 3,
+    keepAliveInterval: 60,
+    timeout: 60
+};
+
+const setting = {
+    QOS: 0,
+    RETAIN: true,
+};
+
+var mqtt = null;
+
 
 class Dashboard extends Component{
+    // constructor() {
+
+    // }
+
     static navigationOptions = {  
         title: 'Dashboard',  
-        
-   };  
+    };
+    
+    connectHandler() {
+        let currentTime = new Date();
+        let clientID = currentTime + uuid.v1();
+        clientID = clientID.slice(0, 23);
+        console.log('clientID: ', clientID);
+        mqtt = new Paho.MQTT.Client(USER.host, USER.port, clientID);
+
+        mqtt.onMessageDelivered = (message) => {
+            console.log("Message delivered!: ", message.payloadString);
+        };
+        mqtt.connect({
+            onSuccess: () => {console.log("Connect succeed!")},
+            onFailure: (m) => {console.log("Connect failed! ", m)},
+            userName: USER.userName,
+            password: USER.password,
+            useSSL: false,
+            ...defaultConnectOptions,
+        });
+    }
+    
+    turnOnHandler() {
+        if (!mqtt || !mqtt.isConnected()) {
+                console.log("Cannot publish to topic!");
+            if (!mqtt) {
+                console.log("MQTT not available!");
+            } else {
+                console.log("No payload!");
+            }
+            return;
+        }
+
+        topics.forEach((t) => {mqtt.publish(t, '0', setting.QOS, setting.RETAIN)});
+    }
+    
+    turnOffHandler() {
+        if (!mqtt || !mqtt.isConnected()) {
+                console.log("Cannot publish to topic!");
+            if (!mqtt) {
+                console.log("MQTT not available!");
+            } else {
+                console.log("No payload!");
+            }
+            return;
+        }
+
+        topics.forEach((t) => {mqtt.publish(t, '1', setting.QOS, setting.RETAIN)});
+    }
     render(){
         return (
-    <ScrollView>
-    <View style={home_styles.container}>
-      <View style={home_styles.control_wrapper}>
-        <Text style={home_styles.txtBlue_title}>BÁO ĐỘNG</Text>
-        <View style={{flexDirection: 'row', justifyContent: 'space-evenly',}}>
-          <TouchableOpacity onPress={() => Alert.alert('Cannot press this one')} style={home_styles.btnOn}>
-              <Text style={home_styles.txtOn}>BẬT</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Alert.alert('Cannot press this one')} style={home_styles.btnOff}>
-              <Text style={home_styles.txtOff}>TẮT</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View style={home_styles.box2}>
-        <View style={home_styles.temperature_wrapper}>
-        <Text style={home_styles.txtWhite_title}>NHIỆT ĐỘ</Text>
-        <Text style={home_styles.txtWhite_nhietdo}>36</Text>
-        </View>
-        <View style={home_styles.status_wrapper}>
-          <Text style={home_styles.txtBlue_title}>HỆ THỐNG</Text>
-          <Text style={home_styles.txt_Hethong}>ỔN ĐỊNH</Text>
-        </View>
-      </View>
-      <CustomChart/>
-      <View style={home_styles.box2}>
-        <View style={home_styles.item_wrapper}>
-          <Text style={home_styles.item_title}>VAN GAS</Text>
-          <Text style={home_styles.item_status}>OFF</Text>
-        </View>
-        <View style={home_styles.item_wrapper}>
-          <Text style={home_styles.item_title}>VAN GAS</Text>
-          <Text style={home_styles.item_status}>OFF</Text>
-        </View>
-        <View style={home_styles.item_wrapper}>
-          <Text style={home_styles.item_title}>VAN GAS</Text>
-          <Text style={home_styles.item_status}>OFF</Text>
-        </View>
-      </View>
-      <TouchableOpacity onPress={() => Alert.alert('Cannot press this one')} style={home_styles.btnHistory}>
-        <Text style={home_styles.txt_History}>XEM LỊCH SỬ HOẠT ĐỘNG</Text>
-      </TouchableOpacity>
-    </View>
-    </ScrollView>
-  );}
+            <ScrollView>
+            <View style={home_styles.container}>
+            <View style={home_styles.control_wrapper}>
+                <View style={home_styles.connect_view}>
+                    <Text style={home_styles.txtBlue_title}>BÁO ĐỘNG</Text>
+                    <Button title='connect' onPress={this.connectHandler} />
+                </View>
+                <View style={{flexDirection: 'row', justifyContent: 'space-evenly',}}>
+                <TouchableOpacity onPress={this.turnOnHandler} style={home_styles.btnOn}>
+                    <Text style={home_styles.txtOn}>BẬT</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.turnOffHandler} style={home_styles.btnOff}>
+                    <Text style={home_styles.txtOff}>TẮT</Text>
+                </TouchableOpacity>
+                </View>
+            </View>
+            <View style={home_styles.box2}>
+                <View style={home_styles.temperature_wrapper}>
+                <Text style={home_styles.txtWhite_title}>NHIỆT ĐỘ</Text>
+                <Text style={home_styles.txtWhite_nhietdo}>36</Text>
+                </View>
+                <View style={home_styles.status_wrapper}>
+                <Text style={home_styles.txtBlue_title}>HỆ THỐNG</Text>
+                <Text style={home_styles.txt_Hethong}>ỔN ĐỊNH</Text>
+                </View>
+            </View>
+            <CustomChart/>
+            <View style={home_styles.box2}>
+                <View style={home_styles.item_wrapper}>
+                <Text style={home_styles.item_title}>VAN GAS</Text>
+                <Text style={home_styles.item_status}>OFF</Text>
+                </View>
+                <View style={home_styles.item_wrapper}>
+                <Text style={home_styles.item_title}>VAN GAS</Text>
+                <Text style={home_styles.item_status}>OFF</Text>
+                </View>
+                <View style={home_styles.item_wrapper}>
+                <Text style={home_styles.item_title}>VAN GAS</Text>
+                <Text style={home_styles.item_status}>OFF</Text>
+                </View>
+            </View>
+            <TouchableOpacity onPress={() => Alert.alert('Cannot press this one')} style={home_styles.btnHistory}>
+                <Text style={home_styles.txt_History}>XEM LỊCH SỬ HOẠT ĐỘNG</Text>
+            </TouchableOpacity>
+            </View>
+            </ScrollView>
+        );
+    }
 };
 const DashboardStackNavigator = createStackNavigator(  
     {  
@@ -135,24 +232,29 @@ const DashboardStackNavigator = createStackNavigator(
 
 
 const chartConfig={
-  backgroundColor: colors.main_blue,
-  backgroundGradientFrom: 'rgba(237, 249, 252, 1)',
-  backgroundGradientTo: 'rgba(237, 249, 252, 1)',
-  color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
-  labelColor: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
-  fillShadowGradient:colors.main_blue,
-  // backgroundGradientFrom: colors.main_blue,
-  // backgroundGradientTo: colors.black,
-  // color: (opacity = 1) => `rgba(255,255,255, ${opacity})`,
-  // labelColor: (opacity = 1) => `rgba(255,255,255, ${opacity})`,
-  // fillShadowGradient:colors.white,
-  decimalPlaces: 2, // optional, defaults to 2dp
-  propsForDots: {
-    r: "3",
-  },
+    backgroundColor: colors.main_blue,
+    backgroundGradientFrom: 'rgba(237, 249, 252, 1)',
+    backgroundGradientTo: 'rgba(237, 249, 252, 1)',
+    color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
+    fillShadowGradient:colors.main_blue,
+    // backgroundGradientFrom: colors.main_blue,
+    // backgroundGradientTo: colors.black,
+    // color: (opacity = 1) => `rgba(255,255,255, ${opacity})`,
+    // labelColor: (opacity = 1) => `rgba(255,255,255, ${opacity})`,
+    // fillShadowGradient:colors.white,
+    decimalPlaces: 2, // optional, defaults to 2dp
+    propsForDots: {
+        r: "3",
+    },
 }
 
 const home_styles = StyleSheet.create({
+
+    connect_view: {
+        flexDirection: 'row',
+    },
+
   container: {
     flex: 1,
     flexDirection: "column",
