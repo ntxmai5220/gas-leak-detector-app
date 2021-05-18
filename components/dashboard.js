@@ -72,11 +72,17 @@ const USER = {
     host: 'io.adafruit.com',
     port: 80,
     userName: 'johnwick123',
-    password: 'aio_CcoE07SSRBCbwtpS9043so5byw6G',
+    password: 'aio_tbqA09qaY5fEDdifId3LWtlLprq3',
 }
 const topics = [
-    'johnwick123/feeds/dummy',
-    'johnwick123/feeds/dummy',
+    'johnwick123/feeds/fan',
+    'johnwick123/feeds/valve',
+]
+
+const subscribe_topics = [
+    { name: 'johnwick123/feeds/fan', thing: 'fan' },
+    { name: 'johnwick123/feeds/pump', thing: 'pump' },
+    { name: 'johnwick123/feeds/valve', thing: 'valve' },
 ]
 
 init({
@@ -101,17 +107,28 @@ const setting = {
 
 var mqtt = null;
 
+var valve;
+
 
 class Dashboard extends Component{
-    // constructor() {
+    constructor(props) {
+        super(props);
+        this.connectSetup();
+        // mqtt.connect({
+        //     onSuccess: () => {console.log("Connect succeed!")},
+        //     onFailure: (m) => {console.log("Connect failed! ", m)},
+        //     userName: USER.userName,
+        //     password: USER.password,
+        //     useSSL: false,
+        //     ...defaultConnectOptions,
+        // });
+    }
 
-    // }
 
     static navigationOptions = {  
         title: 'Dashboard',  
     };
-    
-    connectHandler() {
+    connectSetup() {
         let currentTime = new Date();
         let clientID = currentTime + uuid.v1();
         clientID = clientID.slice(0, 23);
@@ -121,51 +138,88 @@ class Dashboard extends Component{
         mqtt.onMessageDelivered = (message) => {
             console.log("Message delivered!: ", message.payloadString);
         };
-        mqtt.connect({
-            onSuccess: () => {console.log("Connect succeed!")},
-            onFailure: (m) => {console.log("Connect failed! ", m)},
-            userName: USER.userName,
-            password: USER.password,
-            useSSL: false,
-            ...defaultConnectOptions,
-        });
+        mqtt.onConnectionLost = (res) => {
+            console.log("Connection lost! ", res);
+        };
+        mqtt.onMessageArrived = (message) => {
+            console.log('message arrived:');
+            console.log('Message come from: ', message.destinationName);
+            console.log('Message: ', message.payloadString);
+        }
+        
+        console.log("Finish connect setup");
+    }
+
+    connectHandler() {
+        if (!mqtt.isConnected()){
+            mqtt.connect({
+                onSuccess: () => console.log("Connect succeed!"),
+                onFailure: (m) => console.log("Connect failed! ", m),
+                userName: USER.userName,
+                password: USER.password,
+                useSSL: false,
+                ...defaultConnectOptions,
+            });
+        }
+    }
+
+    connect_success() {
+    }
+    
+    subscribeTopics() {
+        subscribe_topics.forEach((sub_topic) => mqtt.subscribe(sub_topic.name, this.QOS));
     }
     
     turnOnHandler() {
         if (!mqtt || !mqtt.isConnected()) {
-                console.log("Cannot publish to topic!");
+            console.log("Cannot publish to topic!");
             if (!mqtt) {
                 console.log("MQTT not available!");
-            } else {
-                console.log("No payload!");
             }
-            return;
-        }
-
-        topics.forEach((t) => {mqtt.publish(t, '0', setting.QOS, setting.RETAIN)});
-    }
-    
-    turnOffHandler() {
-        if (!mqtt || !mqtt.isConnected()) {
-                console.log("Cannot publish to topic!");
-            if (!mqtt) {
-                console.log("MQTT not available!");
-            } else {
-                console.log("No payload!");
+            else {
+                console.log("Not connected!");
             }
             return;
         }
 
         topics.forEach((t) => {mqtt.publish(t, '1', setting.QOS, setting.RETAIN)});
     }
+    
+    turnOffHandler() {
+        if (!mqtt || !mqtt.isConnected()) {
+            console.log("Cannot publish to topic!");
+            if (!mqtt) {
+                console.log("MQTT not available!");
+            }
+            else {
+                console.log("Not connected!");
+            }
+            return;
+        }
+
+        topics.forEach((t) => {mqtt.publish(t, '0', setting.QOS, setting.RETAIN)});
+    }
+
     render(){
+        // const [valve, setValve] = useState('OFF');
+        // subscribe_topics[0].setthing = setValve;
+
+
+
+
         return (
             <ScrollView>
             <View style={home_styles.container}>
             <View style={home_styles.control_wrapper}>
                 <View style={home_styles.connect_view}>
                     <Text style={home_styles.txtBlue_title}>BÁO ĐỘNG</Text>
-                    <Button title='connect' onPress={this.connectHandler} />
+                    {/* <Button title='connect' onPress={this.connectHandler} /> */}
+                <TouchableOpacity onPress={this.connectHandler} style={home_styles.btnOn}>
+                    <Text style={home_styles.txtOn}>Kết nối</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.subscribeTopics} style={home_styles.btnOn}>
+                    <Text style={home_styles.txtOn}>sub</Text>
+                </TouchableOpacity>
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly',}}>
                 <TouchableOpacity onPress={this.turnOnHandler} style={home_styles.btnOn}>
@@ -193,11 +247,11 @@ class Dashboard extends Component{
                 <Text style={home_styles.item_status}>OFF</Text>
                 </View>
                 <View style={home_styles.item_wrapper}>
-                <Text style={home_styles.item_title}>VAN GAS</Text>
+                <Text style={home_styles.item_title}>QUẠT</Text>
                 <Text style={home_styles.item_status}>OFF</Text>
                 </View>
                 <View style={home_styles.item_wrapper}>
-                <Text style={home_styles.item_title}>VAN GAS</Text>
+                <Text style={home_styles.item_title}>BƠM</Text>
                 <Text style={home_styles.item_status}>OFF</Text>
                 </View>
             </View>
