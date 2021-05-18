@@ -12,12 +12,11 @@ import {
   Image,
   Dimensions,
   Button,
-  ImageBackground
-} from 'react-native'; 
+  ImageBackground,AsyncStorage
+} from '../node_modules/react-native'; 
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-
 const styless = StyleSheet.create({
   container: {
     flex: 1,
@@ -93,6 +92,8 @@ const styless = StyleSheet.create({
     alignItems: "center",
   }, 
 });
+var STORAGE_KEY = 'id_token';
+
 class Login extends Component {  
     static navigationOptions = {  
          title: '',  
@@ -108,34 +109,57 @@ class Login extends Component {
     }
     _onSubmit=()=>{
       //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-      return fetch('http://10.0.142.175:8888/user/login', { 
+      console.log(this.state.password)
+      return fetch('http://192.168.43.123:3000/login', { 
         method: 'POST',
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: this.state.username,
+          email:'linhnguyen@gmail.com',
           password: this.state.password,
         })
       })
       .then((response) => response.json())
       .then((responseJson) => {
-          this.setState({checkLogin:responseJson.success});
-          if(this.state.checkLogin>0){
+        console.warn(responseJson);
+        if (responseJson.status=="success"){
               console.warn(responseJson);
               Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-              this.props.navigation.navigate('Profile')
+              this._onValueChange(STORAGE_KEY,responseJson.token);
+              this._retrieveData(STORAGE_KEY);
+              //console.log(responseJson.token);
+              this.props.navigation.navigate('Dashboard')
           }
           else{
              // console.warn(responseJson);
-              Alert.alert("Thông báo!","Bạn đã đăng nhập không thành công!");
+              Alert.alert("Thông báo!",responseJson.message);
           }
       })
       .catch((error) =>{
           console.error(error);
       });
     }
+    async _onValueChange(item, selectedValue) {
+      try {
+        await AsyncStorage.setItem(item, selectedValue);
+        
+      } catch (error) {
+        console.log('AsyncStorage error: ' + error.message);
+      }
+    }
+    _retrieveData = async (topic) => {
+      try {
+        const value = await AsyncStorage.getItem(topic);
+        if (value !== null) {
+          // We have data!!
+          console.log(value);
+        }
+      } catch (error) {
+        // Error retrieving data
+      }
+    };
     render() {  
         return ( 
           // <View style={styless.container}>
@@ -146,8 +170,8 @@ class Login extends Component {
               <View style={{flex:2, alignItems:'center'}}></View>
 
               <View style={{flex:4, alignItems: 'center'}}>
-                <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your username and password</Text>
-                <TextInput placeholder="Username"
+                <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your email and password</Text>
+                <TextInput placeholder="Email"
                     placeholderTextColor={colors.main_blue}
                     underlineColorAndroid="transparent"
                     style={styless.txtInput}  onChangeText={(username) => this.setState({username:username})}/>
@@ -159,7 +183,8 @@ class Login extends Component {
                 {/* <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
                     <Text style={styless.txtLogin}>Login</Text>
                 </TouchableOpacity> */}
-                <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Profile')}} style={styless.btnLogin}>
+                <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
+                {/* ()=>{this.props.navigation.navigate('Profile')} */}
                     <Text style={styless.txtLogin}>Login</Text>
                 </TouchableOpacity>
                 <Text style={{flex:1}} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text>

@@ -70,7 +70,7 @@ const CustomChart = () => {
 
 const USER = {
     host: 'io.adafruit.com',
-    port: 80,
+    port: 1883,
     userName: 'johnwick123',
     password: 'aio_tbqA09qaY5fEDdifId3LWtlLprq3',
 }

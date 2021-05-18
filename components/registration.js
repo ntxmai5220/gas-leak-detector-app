@@ -1,10 +1,28 @@
 import React, { Component } from 'react';  
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
-import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button,ScrollView,ImageBackground} from 'react-native';
+import {Platform,
+   StyleSheet,
+    Text,
+    Alert,
+     View,
+     TouchableOpacity,
+     TextInput,
+     Image,
+     Dimensions,
+     Button
+     ,ScrollView,
+     ImageBackground,AsyncStorage
+  } from '../node_modules/react-native';
+  //var ReactNative = require('react-native');
+// var t = require('tcomb-form-native')
+//var {AsyncStorage} =ReactNative
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 //import { useFonts } from 'expo-font';
 import colors from '../assets/colors'
+var STORAGE_KEY = 'id_token';
+
+
 class Registration extends Component{
     static navigationOptions = {  
         title: '',
@@ -14,43 +32,107 @@ class Registration extends Component{
   constructor(props){
     super(props);
     this.state={
-      username:"",
+      passwordConfirm:"",
       password:"",
       email:"",
       fullname:"",
-      checkReg:0
     }
   };
   _onSubmit=()=>{
     //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-    return fetch('http://10.0.137.109:8888/user/login', { 
+    return fetch('http://192.168.43.123:3000/signup', { 
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: this.state.username,
+        name: this.state.fullname,
         password: this.state.password,
+        email:this.state.email,
+        passwordConfirm:this.state.passwordConfirm
       })
     })
     .then((response) => response.json())
     .then((responseJson) => {
-        this.setState({checkReg:responseJson.success});
-        if(this.state.checkReg>0){
+        // this.setState({checkReg:responseJson.success});
+        if (responseJson.status=="success"){
             console.warn(responseJson);
-            Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
+            Alert.alert("Thông báo!","Bạn đã đăng ký thành công!");
+            this._onValueChange(STORAGE_KEY,responseJson.token)
             this.props.navigation.navigate('Login');
         }
         else{
            // console.warn(responseJson);
-            Alert.alert("Thông báo!","Bạn đã đăng nhập không thành công!");
+            Alert.alert("Thông báo!",responseJson.message)
         }
     })
     .catch((error) =>{
         console.error(error);
     });
   }
+  async _onValueChange(item, selectedValue) {
+    try {
+      await AsyncStorage.setItem(item, selectedValue);
+    } catch (error) {
+      console.log('AsyncStorage error: ' + error.message);
+    }
+  }
+//   async _getProtectedQuote() {
+//     var DEMO_TOKEN = await AsyncStorage.getItem(STORAGE_KEY);
+//     fetch("http://localhost:3001/api/protected/random-quote", {
+//       method: "GET",
+//       headers: {
+//         'Authorization': 'Bearer ' + DEMO_TOKEN
+//       }
+//     })
+//     .then((response) => response.text())
+//     .then((quote) => {
+//       Alert.alert(
+//         "Chuck Norris Quote:", quote)
+//     })
+//     .done();
+//   }
+//   async _getProtectedQuote() {
+//   var DEMO_TOKEN = await AsyncStorage.getItem(STORAGE_KEY);
+//   fetch("http://localhost:3001/api/protected/random-quote", {
+//     method: "GET",
+//     headers: {
+//       'Authorization': 'Bearer ' + DEMO_TOKEN
+//     }
+//   })
+//   .then((response) => response.text())
+//   .then((quote) => {
+//     Alert.alert(
+//       "Chuck Norris Quote:", quote)
+//   })
+//   .done();
+// }
+// _userSignup() {
+//   var value = this.refs.form.getValue();
+//   if (value) { // if validation fails, value will be null
+//     fetch("http://localhost:3001/users", {
+//       method: "POST",
+//       headers: {
+//         'Accept': 'application/json',
+//         'Content-Type': 'application/json'
+//       },
+//       body: JSON.stringify({
+//         username: value.username,
+//         password: value.password,
+//       })
+//     })
+//     .then((response) => response.json())
+//     .then((responseData) => {
+//       this._onValueChange(STORAGE_KEY, responseData.id_token),
+//       Alert.alert(
+//         "Signup Success!",
+//         "Click the button to get a Chuck Norris quote!"
+//       )
+//     })
+//     .done();
+//   }
+// }
   render() {
     return (
       <ImageBackground source={require('../assets/brReg.jpg')} style={styless.image}>
@@ -63,10 +145,6 @@ class Registration extends Component{
            placeholderTextColor={colors.main_blue}
            underlineColorAndroid="transparent"
            style={styless.txtInput}  onChangeText={(fullname) => this.setState({fullname:fullname})}/>
-        <TextInput placeholder="Username"
-           placeholderTextColor={colors.main_blue}
-           underlineColorAndroid="transparent"
-           style={styless.txtInput}  onChangeText={(username) => this.setState({username:username})}/>
         <TextInput placeholder="Email"
            placeholderTextColor={colors.main_blue}
            underlineColorAndroid="transparent"
@@ -76,7 +154,11 @@ class Registration extends Component{
             placeholderTextColor={colors.main_blue}
             secureTextEntry={true}
             style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
-        <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={styless.btnReg}>
+          <TextInput placeholder="password Confirm"
+           placeholderTextColor={colors.main_blue}
+           underlineColorAndroid="transparent"
+           style={styless.txtInput}  onChangeText={(passwordConfirm) => this.setState({passwordConfirm:passwordConfirm})}/>
+        <TouchableOpacity onPress={this._onSubmit} style={styless.btnReg}>
             <Text style={styless.txtReg}>Registration</Text>
         </TouchableOpacity>
         </View>
