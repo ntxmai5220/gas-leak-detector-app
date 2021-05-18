@@ -1,6 +1,6 @@
 import React, { Component } from 'react';  
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
-import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button,ScrollView} from 'react-native'; 
+import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button,ScrollView,AsyncStorage} from '../node_modules/react-native'; 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { createStackNavigator } from 'react-navigation-stack';
 import { Table, TableWrapper, Row } from 'react-native-table-component';
@@ -68,10 +68,23 @@ class Profile extends Component{
     super(props);
     this.state = {
       tableHead: ['ID', 'Name', 'Time', 'State'],
-      widthArr: [50,200,100,100]
+      widthArr: [50,200,100,100],
+      name:"",
+      email:""
     }
   }
-
+  // _retrieveData = async (topic) => {
+  //   try {
+  //     const value = await AsyncStorage.getItem(topic);
+  //     if (value !== null) {
+  //       // We have data!!
+  //       console.log(value)
+  //       this.setstate.name=value ;
+  //     }
+  //   } catch (error) {
+  //     // Error retrieving data
+  //   }
+  // };
 render(){
     const state = this.state;
     const data = [];
@@ -79,16 +92,21 @@ render(){
       data.push(['2','Temperature sensor',(new Date()).getDate(),'on']);
       data.push(['3','Pump',(new Date()).getDate(),'off']);
       data.push(['4','Fan',(new Date()).getDate(),'on']);
-      console.log(data);
-        
+      // console.log(data);
+      AsyncStorage.getItem("fullname").then((name)=>{
+        this.setState({name:name})
+      });
+      AsyncStorage.getItem("email").then((email)=>{
+        this.setState({email:email})
+      });
     return (
            <View style={{flex:1}}>
                <View style={{flex:0.2}}></View>
-               <Text style={{flex:1,fontSize:25,fontWeight:'bold'}}> Robert Pattinson</Text>
+               <Text style={{flex:1,fontSize:25,fontWeight:'bold'}}> {this.state.name}</Text>
             <Image source={require('../assets/person-icon.png')} style={style.image_icon}></Image>
             <View style={{flex:0.5}}></View>
             
-            <Text style={style.padd_text}>Email</Text>
+            <Text style={style.padd_text}>Email: {this.state.email}</Text>
             {/* <Text style={{flex:1}}>Name</Text> */}
             <View style={{flex:6}}>
             <Text style={{flex:1,fontSize:20}}>Device</Text>

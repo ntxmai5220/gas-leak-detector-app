@@ -109,7 +109,7 @@ class Login extends Component {
     }
     _onSubmit=()=>{
       //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-      console.log(this.state.password)
+      //console.log(this.state.password)
       return fetch('http://192.168.43.123:3000/login', { 
         method: 'POST',
         headers: {
@@ -117,7 +117,7 @@ class Login extends Component {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email:'linhnguyen@gmail.com',
+          email:this.state.email,
           password: this.state.password,
         })
       })
@@ -128,8 +128,11 @@ class Login extends Component {
               console.warn(responseJson);
               Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
               this._onValueChange(STORAGE_KEY,responseJson.token);
+              this._onValueChange("fullname",responseJson.data.name)
+              this._onValueChange("email",responseJson.data.email)
               this._retrieveData(STORAGE_KEY);
-              //console.log(responseJson.token);
+              
+              console.log(responseJson.data.name);
               this.props.navigation.navigate('Dashboard')
           }
           else{
@@ -174,7 +177,7 @@ class Login extends Component {
                 <TextInput placeholder="Email"
                     placeholderTextColor={colors.main_blue}
                     underlineColorAndroid="transparent"
-                    style={styless.txtInput}  onChangeText={(username) => this.setState({username:username})}/>
+                    style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}/>
                 <TextInput placeholder="Password"
                     placeholderTextColor={colors.main_blue}
                     underlineColorAndroid="transparent"
