@@ -89,21 +89,13 @@ class Dashboard extends Component{
         this.state = {
             valve : 'OFF',
             fan: 'OFF',
-            gas: 'OFF',
+            pump: 'OFF',
         }
-        // this.connectSetup.bind(this);
-        // this.connectSetup();
-        // mqtt.connect({
-        //     onSuccess: () => {console.log("Connect succeed!")},
-        //     onFailure: (m) => {console.log("Connect failed! ", m)},
-        //     userName: USER.userName,
-        //     password: USER.password,
-        //     useSSL: false,
-        //     ...DefaultConnectOptions,
-        // });
+
         this.turnOnHandler = this.turnOnHandler.bind(this);
         this.turnOffHandler = this.turnOffHandler.bind(this);
-        this.subscribeTopics.bind = this.subscribeTopics.bind(this);
+        this.subscribeTopics = this.subscribeTopics.bind(this);
+        this.updateObjects = this.updateObjects.bind(this);
 
         this.mqtt = new MQTT();
         this.mqtt.ConnectSuccessAction = () => {
@@ -111,7 +103,9 @@ class Dashboard extends Component{
         }
         this.mqtt.SetResponseFunction = (message) => {
             console.log("Changing state of ", message.destinationName);
-            // TODO
+            console.log("see value:  ", JSON.parse(message.payloadString).data);
+            let val = JSON.parse(message.payloadString).data
+            this.updateObjects(message.destinationName, val);
         }
         this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
         
@@ -121,6 +115,20 @@ class Dashboard extends Component{
         title: 'Dashboard',  
     };
     
+    updateObjects(destinationName, data) {
+        Subscribe_Topics.forEach(({ name, thing }) => {
+            if (name == destinationName) {
+                if (thing == 'valve') {
+                    if (data == '1') this.setState({valve: 'ON'})
+                    else this.setState({valve: 'OFF'});
+                }
+                if (thing == 'fan') {
+                    if (data == '1') this.setState({fan: 'ON'})
+                    else this.setState({fan: 'OFF'});
+                }
+            }
+        });
+    }
     
     subscribeTopics() {
         console.log("Subscribing");
@@ -130,14 +138,15 @@ class Dashboard extends Component{
     }
     
     turnOnHandler() {
-        Topics.forEach((t) => {
-            this.mqtt.send(t, '1');
+        
+        Topics.forEach(({ name, jsonobj, on }) => {
+            this.mqtt.send(name, JSON.stringify(jsonobj(on)));
         });
     }
     
     turnOffHandler() {
-        Topics.forEach((t) => {
-            this.mqtt.send(t, '0');
+        Topics.forEach(({ name, jsonobj, off }) => {
+            this.mqtt.send(name, JSON.stringify(jsonobj(off)));
         });
     }
 
@@ -180,7 +189,7 @@ class Dashboard extends Component{
                 </View>
                 <View style={home_styles.item_wrapper}>
                 <Text style={home_styles.item_title}>QUẠT</Text>
-                <Text style={home_styles.item_status}>OFF</Text>
+                <Text style={home_styles.item_status}>{ this.state.fan }</Text>
                 </View>
                 <View style={home_styles.item_wrapper}>
                 <Text style={home_styles.item_title}>BƠM</Text>

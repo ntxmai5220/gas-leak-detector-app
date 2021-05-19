@@ -2,7 +2,7 @@ export const USER = {
     host: 'io.adafruit.com',
     port: 80,
     userName: 'johnwick123',
-    password: 'aio_nFgf668ZoA9OX7MfXItPDRvPmc7X',
+    password: 'aio_IsrW44huvNdshHaTexHxHia49ZYg',
 }
 
 export const DefaultConnectOptions = {
@@ -18,13 +18,45 @@ export const ConnectSetting = {
     RETAIN: true,
 };
 
-export const Topics = [
-    'johnwick123/feeds/fan',
-    'johnwick123/feeds/valve',
+export const Topics = [{
+        name: 'johnwick123/feeds/fan',
+        thing: 'fan',
+        jsonobj: (payload) => {
+            return {
+                id: "11",
+                name: "RELAY",
+                data: payload,
+                unit: ""
+            };
+                
+        },
+        on: '1',
+        off: '0',
+    },{
+        name: 'johnwick123/feeds/valve',
+        thing: 'valve',
+        jsonobj: (payload) => {
+            return {
+                id:"11",
+                name:"RELAY",
+                data: payload,
+                unit: ""
+            };
+
+        },
+        on: '1',
+        off: '0',
+    },
 ];
 
-export const Subscribe_Topics = [
-    { name: 'johnwick123/feeds/fan', thing: 'fan' },
-    { name: 'johnwick123/feeds/pump', thing: 'pump' },
-    { name: 'johnwick123/feeds/valve', thing: 'valve' },
+export const Subscribe_Topics = [{
+        name: 'johnwick123/feeds/fan',
+        thing: 'fan',
+    },{
+        name: 'johnwick123/feeds/pump',
+        thing: 'pump',
+    },{
+        name: 'johnwick123/feeds/valve',
+        thing: 'valve',
+    },
 ];
