@@ -10,7 +10,7 @@ import {
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-// import USER from '../global/user';
+import { USER, DefaultConnectOptions, ConnectSetting, Topics, Subscribe_Topics } from '../global/user';
 
 import {AsyncStorage} from "react-native";
 import init from 'react_native_mqtt';
@@ -68,22 +68,6 @@ const CustomChart = () => {
   );
 };
 
-const USER = {
-    host: 'io.adafruit.com',
-    port: 1883,
-    userName: 'johnwick123',
-    password: 'aio_tbqA09qaY5fEDdifId3LWtlLprq3',
-}
-const topics = [
-    'johnwick123/feeds/fan',
-    'johnwick123/feeds/valve',
-]
-
-const subscribe_topics = [
-    { name: 'johnwick123/feeds/fan', thing: 'fan' },
-    { name: 'johnwick123/feeds/pump', thing: 'pump' },
-    { name: 'johnwick123/feeds/valve', thing: 'valve' },
-]
 
 init({
     size: 10000,
@@ -92,18 +76,18 @@ init({
     enableCache: true,
     sync: {},
 });
-const defaultConnectOptions = {
-    reconnect: false,
-    cleanSession: true,
-    mqttVersion: 3,
-    keepAliveInterval: 60,
-    timeout: 60
-};
+// const DefaultConnectOptions = {
+//     reconnect: false,
+//     cleanSession: true,
+//     mqttVersion: 3,
+//     keepAliveInterval: 60,
+//     timeout: 60
+// };
 
-const setting = {
-    QOS: 0,
-    RETAIN: true,
-};
+// const ConnectSetting = {
+//     QOS: 0,
+//     RETAIN: true,
+// };
 
 var mqtt = null;
 
@@ -120,7 +104,7 @@ class Dashboard extends Component{
         //     userName: USER.userName,
         //     password: USER.password,
         //     useSSL: false,
-        //     ...defaultConnectOptions,
+        //     ...DefaultConnectOptions,
         // });
     }
 
@@ -158,7 +142,7 @@ class Dashboard extends Component{
                 userName: USER.userName,
                 password: USER.password,
                 useSSL: false,
-                ...defaultConnectOptions,
+                ...DefaultConnectOptions,
             });
         }
     }
@@ -167,7 +151,7 @@ class Dashboard extends Component{
     }
     
     subscribeTopics() {
-        subscribe_topics.forEach((sub_topic) => mqtt.subscribe(sub_topic.name, this.QOS));
+        Subscribe_Topics.forEach((sub_topic) => mqtt.subscribe(sub_topic.name, this.QOS));
     }
     
     turnOnHandler() {
@@ -182,7 +166,7 @@ class Dashboard extends Component{
             return;
         }
 
-        topics.forEach((t) => {mqtt.publish(t, '1', setting.QOS, setting.RETAIN)});
+        Topics.forEach((t) => {mqtt.publish(t, '1', ConnectSetting.QOS, ConnectSetting.RETAIN)});
     }
     
     turnOffHandler() {
@@ -197,7 +181,7 @@ class Dashboard extends Component{
             return;
         }
 
-        topics.forEach((t) => {mqtt.publish(t, '0', setting.QOS, setting.RETAIN)});
+        Topics.forEach((t) => {mqtt.publish(t, '0', ConnectSetting.QOS, ConnectSetting.RETAIN)});
     }
 
     render(){
