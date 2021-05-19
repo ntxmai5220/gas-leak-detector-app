@@ -24,11 +24,17 @@ const defaultConnectOptions = {
 
 
 export default class MQTT {
-    constructor(debug = false) {
-        this.mqtt = null;
+    constructor(ConnectOptions = null, SETTING = null, debug = false) {
+        this.MQTTObject = null;
         this.QOS = 0;
         this.RETAIN = true;
         this.debug = debug;
+
+        this.connect.bind(this);
+        this.subscribeTopic.bind(this);
+        this.unsubscribeTopic.bind(this);
+        this.send.bind(this);
+        this.close.bind(this);
     }
 
     connect(host, port, usr, pass) {
@@ -37,28 +43,24 @@ export default class MQTT {
         clientID = clientID.slice(0, 23);
         console.log('clientID: ', clientID);
 
-        this.mqtt = new Paho.MQTT.Client(host, port, clientID);
+        this.MQTTObject = new Paho.MQTT.Client(host, port, clientID);
 
-        this.mqtt.onConnectionLost = (res) => {
+        this.MQTTObject.onConnectionLost = (res) => {
             console.log("Connection lost! ", res);
         };
-        this.mqtt.onMessageArrived = (message) => {
-            if (this.debug) {
-                console.log("Message arrived!: ", message.payloadString);
-            }
-            // g.message = message;
-            this.onMQTTMessageArrived(message);
+        this.MQTTObject.onMessageArrived = (message) => {
+            console.log("Message Arrived!: ", message.payloadString);
+            this.SetResponseFunction(message);
         };
-        this.mqtt.onMessageDelivered = (message) => {
-            if (this.debug) {
-                console.log("Message delivered! ", message);
-            } else {
-                console.log("Message delivered!");
-            }
+        this.MQTTObject.onMessageDelivered = (message) => {
+            console.log("Message delivered!: ", message.payloadString);
         };
 
-        this.mqtt.connect({
-            onSuccess: () => {console.log("Connect succeed!")},
+        this.MQTTObject.connect({
+            onSuccess: () => {
+                console.log("Connect succeed!");
+                this.ConnectSuccessAction();
+            },
             onFailure: (m) => {console.log("Connect failed! ", m)},
             userName: usr,
             password: pass,
@@ -69,36 +71,32 @@ export default class MQTT {
 
     subscribeTopic(topic) {
         console.log('MQTTConnection subscribe topic: ', topic);
-        if (!this.mqtt || !this.mqtt.isConnected()) {
+        if (!this.MQTTObject || !this.MQTTObject.isConnected()) {
             if (this.debug) {
                 console.log("Cannot subscribe topic!");
             }
             return;
         }
-        this.mqtt.subscribe(topic, this.QOS);
+        this.MQTTObject.subscribe(topic, this.QOS);
     }
     
     unsubscribeTopic(topic) {
         console.log('MQTTConnection unsubscribe topic: ', topic)
-        if (!this.mqtt || !this.mqtt.isConnected()) {
+        if (!this.MQTTObject || !this.MQTTObject.isConnected()) {
             if (this.debug) {
                 console.log("Cannot unsubscribe topic!");
             }
             return;
         }
-        this.mqtt.unsubscribe(topic);
+        this.MQTTObject.unsubscribe(topic);
     }
-
-    // setSubFunction(func) {
-    //     this.f = func;
-    // }
     
     send(topic = null, payload) {
         // console.log('MQTTConnection send: ')
-        if (!this.mqtt || !this.mqtt.isConnected()) {
+        if (!this.MQTTObject || !this.MQTTObject.isConnected()) {
             if (this.debug) {
                 console.log("Cannot publish to topic!");
-                if (!this.mqtt) {
+                if (!this.MQTTObject) {
                     console.log("MQTT not available!");
                 }
                 else {
@@ -114,15 +112,20 @@ export default class MQTT {
             }
             return false;
         }
-        // console.log(`MQTTConnection send publish topic: ${topic}, payload: ${payload} qos: ${this.QOS} retained: ${this.RETAIN}`)
-        this.mqtt.publish(topic, payload, this.QOS, this.RETAIN);
+        
+        this.MQTTObject.publish(topic, payload, this.QOS, this.RETAIN);
     }
 
     close() {
-        this.mqtt && this.mqtt.disconnect();
-        this.mqtt = null;
+        this.MQTTObject && this.MQTTObject.disconnect();
+        this.MQTTObject = null;
     }
 
 }
 
-MQTT.prototype.onMQTTMessageArrived = null
+MQTT.prototype.SetResponseFunction = (message) => {
+    console.log("No SetResponseFunction function available!");
+}
+MQTT.prototype.ConnectSuccessAction = () => {
+    console.log("No ConnectSuccessAction function available!");
+}

@@ -12,6 +12,8 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 
 import { USER, DefaultConnectOptions, ConnectSetting, Topics, Subscribe_Topics } from '../global/user';
 
+
+import MQTT from '../mqtt/mqtt-object';
 import {AsyncStorage} from "react-native";
 import init from 'react_native_mqtt';
 import uuid from 'react-native-uuid';
@@ -69,19 +71,16 @@ const CustomChart = () => {
 };
 
 
-init({
-    size: 10000,
-    storageBackend: AsyncStorage,
-    defaultExpires: 1000 * 3600 * 24,
-    enableCache: true,
-    sync: {},
-});
+// init({
+//     size: 10000,
+//     storageBackend: AsyncStorage,
+//     defaultExpires: 1000 * 3600 * 24,
+//     enableCache: true,
+//     sync: {},
+// });
 
 
 
-var mqtt = null;
-
-var valve;
 
 
 class Dashboard extends Component{
@@ -89,9 +88,11 @@ class Dashboard extends Component{
         super(props);
         this.state = {
             valve : 'OFF',
+            fan: 'OFF',
+            gas: 'OFF',
         }
-        this.connectSetup.bind(this);
-        this.connectSetup();
+        // this.connectSetup.bind(this);
+        // this.connectSetup();
         // mqtt.connect({
         //     onSuccess: () => {console.log("Connect succeed!")},
         //     onFailure: (m) => {console.log("Connect failed! ", m)},
@@ -100,102 +101,57 @@ class Dashboard extends Component{
         //     useSSL: false,
         //     ...DefaultConnectOptions,
         // });
+        this.turnOnHandler = this.turnOnHandler.bind(this);
+        this.turnOffHandler = this.turnOffHandler.bind(this);
+        this.subscribeTopics.bind = this.subscribeTopics.bind(this);
+
+        this.mqtt = new MQTT();
+        this.mqtt.ConnectSuccessAction = () => {
+            this.subscribeTopics();
+        }
+        this.mqtt.SetResponseFunction = (message) => {
+            console.log("Changing state of ", message.destinationName);
+            // TODO
+        }
+        this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
+        
     }
-
-
+    
     static navigationOptions = {  
         title: 'Dashboard',  
     };
-    connectSetup() {
-        let currentTime = new Date();
-        let clientID = currentTime + uuid.v1();
-        clientID = clientID.slice(0, 23);
-        console.log('clientID: ', clientID);
-        mqtt = new Paho.MQTT.Client(USER.host, USER.port, clientID);
-
-        mqtt.onMessageDelivered = (message) => {
-            console.log("Message delivered!: ", message.payloadString);
-        };
-        mqtt.onConnectionLost = (res) => {
-            console.log("Connection lost! ", res);
-        };
-        mqtt.onMessageArrived = (message) => {
-            console.log('message arrived:');
-            console.log('Message come from: ', message.destinationName);
-            console.log('Message: ', message.payloadString);
-            this.setState({valve: message.payloadString });
-        }
-        
-        console.log("Finish connect setup");
-    }
-
-    connectHandler() {
-        if (!mqtt.isConnected()){
-            mqtt.connect({
-                onSuccess: () => console.log("Connect succeed!"),
-                onFailure: (m) => console.log("Connect failed! ", m),
-                userName: USER.userName,
-                password: USER.password,
-                useSSL: false,
-                ...DefaultConnectOptions,
-            });
-        }
-    }
-
-    connect_success() {
-    }
+    
     
     subscribeTopics() {
-        Subscribe_Topics.forEach((sub_topic) => mqtt.subscribe(sub_topic.name, this.QOS));
+        console.log("Subscribing");
+        Subscribe_Topics.forEach((sub_topic) => {
+            this.mqtt.subscribeTopic(sub_topic.name);
+        });
     }
     
     turnOnHandler() {
-        if (!mqtt || !mqtt.isConnected()) {
-            console.log("Cannot publish to topic!");
-            if (!mqtt) {
-                console.log("MQTT not available!");
-            }
-            else {
-                console.log("Not connected!");
-            }
-            return;
-        }
-
-        Topics.forEach((t) => {mqtt.publish(t, '1', ConnectSetting.QOS, ConnectSetting.RETAIN)});
+        Topics.forEach((t) => {
+            this.mqtt.send(t, '1');
+        });
     }
     
     turnOffHandler() {
-        if (!mqtt || !mqtt.isConnected()) {
-            console.log("Cannot publish to topic!");
-            if (!mqtt) {
-                console.log("MQTT not available!");
-            }
-            else {
-                console.log("Not connected!");
-            }
-            return;
-        }
-
-        Topics.forEach((t) => {mqtt.publish(t, '0', ConnectSetting.QOS, ConnectSetting.RETAIN)});
+        Topics.forEach((t) => {
+            this.mqtt.send(t, '0');
+        });
     }
 
     render(){
-        // const [valve, setValve] = useState('OFF');
-        // subscribe_topics[0].setthing = setValve;
-
         return (
             <ScrollView>
             <View style={home_styles.container}>
             <View style={home_styles.control_wrapper}>
                 <View style={home_styles.connect_view}>
                     <Text style={home_styles.txtBlue_title}>BÁO ĐỘNG</Text>
-                    {/* <Button title='connect' onPress={this.connectHandler} /> */}
-                <TouchableOpacity onPress={this.connectHandler} style={home_styles.btnOn}>
-                    <Text style={home_styles.txtOn}>Kết nối</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={this.subscribeTopics} style={home_styles.btnOn}>
-                    <Text style={home_styles.txtOn}>sub</Text>
-                </TouchableOpacity>
+
+                    {/* <TouchableOpacity onPress={this.subscribeTopics} style={home_styles.btnOn}>
+                        <Text style={home_styles.txtOn}>sub</Text>
+                    </TouchableOpacity> */}
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly',}}>
                 <TouchableOpacity onPress={this.turnOnHandler} style={home_styles.btnOn}>
