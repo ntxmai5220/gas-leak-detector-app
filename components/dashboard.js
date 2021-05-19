@@ -76,18 +76,8 @@ init({
     enableCache: true,
     sync: {},
 });
-// const DefaultConnectOptions = {
-//     reconnect: false,
-//     cleanSession: true,
-//     mqttVersion: 3,
-//     keepAliveInterval: 60,
-//     timeout: 60
-// };
 
-// const ConnectSetting = {
-//     QOS: 0,
-//     RETAIN: true,
-// };
+
 
 var mqtt = null;
 
@@ -97,6 +87,10 @@ var valve;
 class Dashboard extends Component{
     constructor(props) {
         super(props);
+        this.state = {
+            valve : 'OFF',
+        }
+        this.connectSetup.bind(this);
         this.connectSetup();
         // mqtt.connect({
         //     onSuccess: () => {console.log("Connect succeed!")},
@@ -129,6 +123,7 @@ class Dashboard extends Component{
             console.log('message arrived:');
             console.log('Message come from: ', message.destinationName);
             console.log('Message: ', message.payloadString);
+            this.setState({valve: message.payloadString });
         }
         
         console.log("Finish connect setup");
@@ -188,9 +183,6 @@ class Dashboard extends Component{
         // const [valve, setValve] = useState('OFF');
         // subscribe_topics[0].setthing = setValve;
 
-
-
-
         return (
             <ScrollView>
             <View style={home_styles.container}>
@@ -228,7 +220,7 @@ class Dashboard extends Component{
             <View style={home_styles.box2}>
                 <View style={home_styles.item_wrapper}>
                 <Text style={home_styles.item_title}>VAN GAS</Text>
-                <Text style={home_styles.item_status}>OFF</Text>
+                <Text style={home_styles.item_status}>{ this.state.valve }</Text>
                 </View>
                 <View style={home_styles.item_wrapper}>
                 <Text style={home_styles.item_title}>QUẠT</Text>
