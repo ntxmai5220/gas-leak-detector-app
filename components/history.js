@@ -6,18 +6,17 @@ import { createDrawerNavigator } from 'react-navigation-drawer';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import HistoryDetail from './historyDetail';
-
+import colors from '../assets/colors'
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
     },
     calendar: {
-        backgroundColor: 'blue',
         flex: 1,
         marginLeft: 20,
         marginRight: 20,
         marginTop: 20,
-    }
+    },
 });
 
 class History extends Component{
@@ -35,10 +34,22 @@ class History extends Component{
                 <View style={styles.calendar}>
 
                     <Calendar
+           
                         current={Date.now()}
                         minDate={Date.now() - 12096e5}
                         maxDate={Date.now()}
                         onDayPress={(day) => {this._date_submit(day)}}
+                        theme={{
+                            todayTextColor: colors.green,
+                            selectedDayTextColor: colors.main_blue,
+                            textDayFontWeight: '300',
+                            textMonthFontWeight: '700',
+                            textDayHeaderFontWeight: '400',
+                            textDayFontSize: 16,
+                            textMonthFontSize: 20,
+                            textDayHeaderFontSize: 16,
+                            arrowColor: colors.green,
+                        }}
                     />
                 </View>
             </View>
@@ -55,7 +66,7 @@ const HistoryStackNavigator = createStackNavigator(
                 headerLeft: (  
                     <Icon  
                         style={{ paddingLeft: 10 }}  
-                        onPress={() => navigation.openDrawer()}  
+                        onPress={() => navigation.goBack()}  
                         name="md-menu"  
                         size={30}  
                     />  
