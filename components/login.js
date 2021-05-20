@@ -195,7 +195,7 @@ class Login extends Component {
               </View>
         {/* <Button title="Go to Home"/> */}
         {/* <HomeScreen /> */}
-        
+        <Text style={{flex:1}}></Text>
             <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
             </View>
           </ImageBackground>

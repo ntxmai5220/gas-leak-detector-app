@@ -1,4 +1,4 @@
-import {AsyncStorage} from "react-native";
+import {AsyncStorage} from "../node_modules/react-native";
 import init from 'react_native_mqtt';
 import uuid from 'react-native-uuid';
 import { useState } from 'react';

@@ -14,9 +14,10 @@ import { USER, DefaultConnectOptions, ConnectSetting, Topics, Subscribe_Topics }
 
 
 import MQTT from '../mqtt/mqtt-object';
-import {AsyncStorage} from "react-native";
+import {AsyncStorage} from "../node_modules/react-native";
 import init from 'react_native_mqtt';
 import uuid from 'react-native-uuid';
+import { interpolate } from 'react-native-reanimated';
 
 
 
@@ -90,6 +91,9 @@ class Dashboard extends Component{
             valve : 'OFF',
             fan: 'OFF',
             pump: 'OFF',
+            temp:0,
+            status:"ỔN ĐỊNH",
+            color:colors.white
         }
 
         this.turnOnHandler = this.turnOnHandler.bind(this);
@@ -118,13 +122,35 @@ class Dashboard extends Component{
     updateObjects(destinationName, data) {
         Subscribe_Topics.forEach(({ name, thing }) => {
             if (name == destinationName) {
-                if (thing == 'valve') {
-                    if (data == '1') this.setState({valve: 'ON'})
-                    else this.setState({valve: 'OFF'});
+                // if (thing == 'valve') {
+                //     if (data == '1') this.setState({valve: 'ON'})
+                //     else this.setState({valve: 'OFF'});
+                // }
+                // if (thing == 'fan') {
+                //     if (data == '1') this.setState({fan: 'ON'})
+                //     else this.setState({fan: 'OFF'});
+                // }
+                if (thing=='kkllm-iot-relay'){
+                  if(data=='1'){
+                    this.setState({valve: 'ON'})
+                    this.setState({fan: 'ON'})
+                    this.setState({color:"#FFB6C1"})
+                  }else {
+                    this.setState({valve: 'OFF'})
+                    this.setState({fan: 'OFF'})
+                    this.setState({color:colors.white})
+
+                  }
                 }
-                if (thing == 'fan') {
-                    if (data == '1') this.setState({fan: 'ON'})
-                    else this.setState({fan: 'OFF'});
+                if (thing=='kkllm-iot-temp-humid'){
+                  this.setState({temp:data})
+                }
+                if(thing=='kkllm-iot-gas'){
+                  if(data=='1'){
+                    this.setState({valve: 'ON'})
+                    this.setState({fan: 'ON'})
+                    this.setState({color:"#FFB6C1"})
+                  }
                 }
             }
         });
@@ -174,20 +200,20 @@ class Dashboard extends Component{
             <View style={home_styles.box2}>
                 <View style={home_styles.temperature_wrapper}>
                 <Text style={home_styles.txtWhite_title}>NHIỆT ĐỘ</Text>
-                <Text style={home_styles.txtWhite_nhietdo}>36</Text>
+                <Text style={home_styles.txtWhite_nhietdo}>{this.state.temp}</Text>
                 </View>
                 <View style={home_styles.status_wrapper}>
                 <Text style={home_styles.txtBlue_title}>HỆ THỐNG</Text>
-                <Text style={home_styles.txt_Hethong}>ỔN ĐỊNH</Text>
+                <Text style={home_styles.txt_Hethong}>{this.state.status}</Text>
                 </View>
             </View>
             <CustomChart/>
             <View style={home_styles.box2}>
-                <View style={home_styles.item_wrapper}>
+                <View style={[home_styles.item_wrapper,{backgroundColor:this.state.color}]}>
                 <Text style={home_styles.item_title}>VAN GAS</Text>
                 <Text style={home_styles.item_status}>{ this.state.valve }</Text>
                 </View>
-                <View style={home_styles.item_wrapper}>
+                <View style={[home_styles.item_wrapper,{backgroundColor:this.state.color}]}>
                 <Text style={home_styles.item_title}>QUẠT</Text>
                 <Text style={home_styles.item_status}>{ this.state.fan }</Text>
                 </View>
