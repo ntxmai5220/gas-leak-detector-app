@@ -1,8 +1,8 @@
 export const USER = {
     host: 'io.adafruit.com',
     port: 80,
-    userName: 'johnwick123',
-    password: 'aio_IsrW44huvNdshHaTexHxHia49ZYg',
+    userName: 'johnwick123456',
+    password: 'aio_EMAI22N7ItQVDwsFMsPQP2eAnSHA',
 }
 
 export const DefaultConnectOptions = {
@@ -19,8 +19,8 @@ export const ConnectSetting = {
 };
 
 export const Topics = [{
-        name: 'johnwick123/feeds/fan',
-        thing: 'fan',
+        name: 'johnwick123456/feeds/relay',
+        thing: 'relay',
         jsonobj: (payload) => {
             return {
                 id: "11",
@@ -33,14 +33,42 @@ export const Topics = [{
         on: '1',
         off: '0',
     },{
-        name: 'johnwick123/feeds/valve',
+        name: 'navcul3108/feeds/kkllm-iot-speaker',
         thing: 'valve',
         jsonobj: (payload) => {
             return {
-                id:"11",
-                name:"RELAY",
+                id: "3",
+                name: "SPEAKER",
                 data: payload,
-                unit: ""
+                unit: "",
+            };
+
+        },
+        on: '888',
+        off: '0',
+    },{
+        name: 'navcul3108/feeds/kkllm-iot-lcd',
+        thing: 'valve',
+        jsonobj: (payload) => {
+            return {
+                id: "5",
+                name: "LCD",
+                data: payload,
+                unit: "",
+            };
+
+        },
+        on: 'System WARNING!',
+        off: 'System normal',
+    },{
+        name: 'navcul3108/feeds/kkllm-iot-led',
+        thing: 'valve',
+        jsonobj: (payload) => {
+            return {
+                id: "1",
+                name: "LED",
+                data: payload,
+                unit: "",
             };
 
         },
@@ -50,13 +78,13 @@ export const Topics = [{
 ];
 
 export const Subscribe_Topics = [{
-        name: 'johnwick123/feeds/fan',
-        thing: 'fan',
+        name: 'johnwick123456/feeds/relay',
+        thing: 'relay',
     },{
-        name: 'johnwick123/feeds/pump',
-        thing: 'pump',
+        name: 'navcul3108/feeds/kkllm-iot-temp-humid',
+        thing: 'temp',
     },{
-        name: 'johnwick123/feeds/valve',
-        thing: 'valve',
+        name: 'navcul3108/feeds/kkllm-iot-gas',
+        thing: 'gas',
     },
 ];

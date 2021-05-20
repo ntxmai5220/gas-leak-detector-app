@@ -87,9 +87,11 @@ class Dashboard extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            valve : 'OFF',
-            fan: 'OFF',
-            pump: 'OFF',
+            valve : 'NaN',
+            fan: 'NaN',
+            pump: 'NaN',
+            temp: 'NaN',
+            warning: false,
         }
 
         this.turnOnHandler = this.turnOnHandler.bind(this);
@@ -115,16 +117,33 @@ class Dashboard extends Component{
         title: 'Dashboard',  
     };
     
+    // main object update
     updateObjects(destinationName, data) {
         Subscribe_Topics.forEach(({ name, thing }) => {
             if (name == destinationName) {
-                if (thing == 'valve') {
-                    if (data == '1') this.setState({valve: 'ON'})
-                    else this.setState({valve: 'OFF'});
+                if (thing == 'relay') {
+                    if (data == '1') {
+                        this.setState({valve: 'ON', fan: 'ON', pump: 'ON', warning: true});
+                    } else {
+                        this.setState({valve: 'OFF', fan: 'OFF', pump: 'OFF', warning: false});
+                    }    
                 }
-                if (thing == 'fan') {
-                    if (data == '1') this.setState({fan: 'ON'})
-                    else this.setState({fan: 'OFF'});
+                if (thing == 'temp') {
+                    let t = data.split('-')[0];
+                    this.setState({temp: t});
+                    if (parseInt(t) > 37) {
+                        this.setState({ warning: true });
+                    } else {
+                        this.setState({ warning: false});
+                    }
+                }
+                if (thing == 'gas') {
+                    let t = data.split('-')[0];
+                    if (data == '1') {
+                        this.turnOnHandler();
+                    } else {
+                        this.turnOffHandler();
+                    }
                 }
             }
         });
@@ -174,7 +193,7 @@ class Dashboard extends Component{
             <View style={home_styles.box2}>
                 <View style={home_styles.temperature_wrapper}>
                 <Text style={home_styles.txtWhite_title}>NHIỆT ĐỘ</Text>
-                <Text style={home_styles.txtWhite_nhietdo}>36</Text>
+                <Text style={home_styles.txtWhite_nhietdo}>{ this.state.temp }</Text>
                 </View>
                 <View style={home_styles.status_wrapper}>
                 <Text style={home_styles.txtBlue_title}>HỆ THỐNG</Text>
@@ -192,8 +211,8 @@ class Dashboard extends Component{
                 <Text style={home_styles.item_status}>{ this.state.fan }</Text>
                 </View>
                 <View style={home_styles.item_wrapper}>
-                <Text style={home_styles.item_title}>BƠM</Text>
-                <Text style={home_styles.item_status}>OFF</Text>
+                <Text style={home_styles.item_title}>MÁY BƠM</Text>
+                <Text style={home_styles.item_status}>{ this.state.pump }</Text>
                 </View>
             </View>
             <TouchableOpacity onPress={() => Alert.alert('Cannot press this one')} style={home_styles.btnHistory}>
