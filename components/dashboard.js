@@ -133,9 +133,11 @@ class Dashboard extends Component{
                     let t = data.split('-')[0];
                     this.setState({temp: t});
                     if (parseInt(t) > 37) {
-                        this.setState({ warning: true });
+                        // this.setState({ warning: true });
+                        this.turnOnHandler();
                     } else {
-                        this.setState({ warning: false});
+                        // this.setState({ warning: false});
+                        this.turnOffHandler();
                     }
                 }
                 if (thing == 'gas') {
