@@ -19,7 +19,8 @@ export const ConnectSetting = {
 };
 
 export const Topics = [{
-        name: 'johnwick123456/feeds/relay',
+        //johnwick123456
+        name: `${USER.userName}/feeds/relay`,
         thing: 'relay',
         jsonobj: (payload) => {
             return {
@@ -33,7 +34,7 @@ export const Topics = [{
         on: '1',
         off: '0',
     },{
-        name: 'navcul3108/feeds/kkllm-iot-speaker',
+        name: `${USER.userName}/feeds/kkllm-iot-speaker`,
         thing: 'valve',
         jsonobj: (payload) => {
             return {
@@ -47,7 +48,7 @@ export const Topics = [{
         on: '888',
         off: '0',
     },{
-        name: 'navcul3108/feeds/kkllm-iot-lcd',
+        name: `${USER.userName}/feeds/kkllm-iot-lcd`,
         thing: 'valve',
         jsonobj: (payload) => {
             return {
@@ -61,7 +62,7 @@ export const Topics = [{
         on: 'System WARNING!',
         off: 'System normal',
     },{
-        name: 'navcul3108/feeds/kkllm-iot-led',
+        name: `${USER.userName}/feeds/kkllm-iot-led`,
         thing: 'valve',
         jsonobj: (payload) => {
             return {
@@ -78,13 +79,14 @@ export const Topics = [{
 ];
 
 export const Subscribe_Topics = [{
-        name: 'johnwick123456/feeds/relay',
+        //johnwick123456
+        name: `${USER.userName}/feeds/relay`,
         thing: 'relay',
     },{
-        name: 'navcul3108/feeds/kkllm-iot-temp-humid',
+        name: `${USER.userName}/feeds/kkllm-iot-temp-humid`,
         thing: 'temp',
     },{
-        name: 'navcul3108/feeds/kkllm-iot-gas',
+        name: `${USER.userName}/feeds/kkllm-iot-gas`,
         thing: 'gas',
     },
 ];
