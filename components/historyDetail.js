@@ -1,6 +1,6 @@
 import React, { Component } from 'react';  
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
-import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button, ScrollView} from 'react-native'; 
+import {FlatList, Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button, ScrollView} from 'react-native'; 
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import Icon from 'react-native-vector-icons/Ionicons'; 
@@ -43,6 +43,7 @@ const data = {
 const CustomChart = () => {
     return(
         <View>
+        
         <LineChart
         //segments={5}
         data={data}
@@ -52,40 +53,82 @@ const CustomChart = () => {
         //fromZero
         bezier
         //maxValue={45}
-        style={{alignSelf:"center", marginTop:-10}}
+        style={{alignSelf:"center", marginTop:20}}
         //formatYLabel={() => yLabelIterator.next().value}
         />
         </View>
     );
 };
-
-
+    
+// FlatListBasics = () => {
+//   return (
+    
+//   );
+// }
 class HistoryDetail extends Component{
+    constructor() {  
+        super();  
+        this.state = {  
+            dataSource: {}, 
+        };  
+    }  
     static navigationOptions = {  
         title: 'History Detail',  
         
     };
+
     render(){
         var time = this.props.navigation.getParam("day", "cant get date");
 
         return (
+          <View style={styles.container}>
             <ScrollView>
-                <Text> Today is { time.day } - { time.month }</Text>
-                <View style={home_styles.container}>
-                    <CustomChart/>
-
-                    <TouchableOpacity onPress={ () => this.props.navigation.goBack() } style={home_styles.btnHistory}>
-                        <Text style={home_styles.txt_History}>Quay Lại</Text>
-                    </TouchableOpacity>
+            
+              <View style={styles.date_wrapper}>
+                <View style={styles.item_wrapper}>
+                <Text style={styles.item_title}>Day</Text>
+                <Text style={styles.item_status}>{ time.day}</Text>
                 </View>
+                <View style={styles.item_wrapper}>
+                <Text style={styles.item_title}>Month</Text>
+                <Text style={styles.item_status}>{ time.month }</Text>
+                </View>
+                <View style={styles.item_wrapper}>
+                <Text style={styles.item_title}>Year</Text>
+                <Text style={styles.item_status}>{ time.year }</Text>
+                </View>
+              </View>
+              <Text style={styles.title}>NHIỆT ĐỘ</Text>
+              <CustomChart/>   
+              <Text style={styles.title}>BÁO ĐỘNG</Text>
+              <View>
+                <FlatList
+                  data={[
+                    {key: 'time1'},
+                    {key: 'time2'},
+                    {key: 'time3'},
+                    {key: 'time4'},
+                    {key: 'time5'},
+                    {key: 'time6'},
+                    {key: 'time7'},
+                  ]}
+                  renderItem={({item}) => <Text style={styles.txtLst}>{item.key}</Text>}
+                />
+              </View>
+              <TouchableOpacity onPress={ () => this.props.navigation.goBack() } style={styles.btnHistory}>
+                  <Text style={styles.txt_History}>Quay Lại</Text>
+              </TouchableOpacity>
+            
+            
             </ScrollView>
+            </View>
         );}
 };
 
 const chartConfig={
   backgroundColor: colors.main_blue,
-  backgroundGradientFrom: 'rgba(237, 249, 252, 1)',
-  backgroundGradientTo: 'rgba(237, 249, 252, 1)',
+  backgroundGradientFrom: 'rgba(255, 255, 255, 1)',
+  backgroundGradientTo: 'rgba(255, 255, 255, 1)',
   color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
   labelColor: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
   fillShadowGradient:colors.main_blue,
@@ -100,110 +143,31 @@ const chartConfig={
   },
 }
 
-const home_styles = StyleSheet.create({
+const styles = StyleSheet.create({
+  
   container: {
     flex: 1,
     flexDirection: "column",
-    alignItems:'center',
-    //justifyContent:'space-around',
+    //alignItems:'center',
+    justifyContent:'space-around',
     paddingTop:25,
-    backgroundColor:colors.background,
-  },
-  control_wrapper:{
-    flexDirection: "column",
-    width:wp('90%'),
-    height:118,
-    //marginTop: 35,
-
-    borderRadius:10,
-
-    shadowColor: colors.main_blue,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity:1,
-    elevation: 5, 
     backgroundColor:colors.white,
   },
-  txtBlue_title:{
-    fontWeight:'500',
-    fontSize:18,
-    marginTop:12,
-    marginBottom:15,
-    marginLeft:15,
-    color: colors.main_blue,
-  },
-  txtWhite_title:{
-    fontWeight:'500',
-    fontSize:18,
-    marginTop:12,
-    marginBottom:10,
-    marginLeft:15,
-    color: colors.white,
-  },
-  txtWhite_nhietdo:{
-    fontWeight:'700',
-    fontSize:55,
-    alignSelf:'center',
-    color: colors.white,
-  },
-  txt_Hethong:{
-    fontWeight:'700',
-    fontSize:24,
-    alignSelf:'center',
-    color: colors.green,
-  },
-  btnOn:{
-    width:wp('40%'),
-    height:45,
-    backgroundColor:colors.white,
-    borderColor:colors.main_blue,
-    borderWidth:1,
-    borderRadius:50,
-    justifyContent:'center'
-  },
-  btnOff:{
-    width:wp('40%'),
-    height:45,
-    backgroundColor:colors.red,
-    borderColor:colors.red,
-    borderWidth:1,
-    borderRadius:50,
-    justifyContent:'center'
-  },
-  txtOn:{
-    fontSize:20,
-    fontWeight:'700',
+  title:{
+    fontSize:25,
+    fontWeight:'600',
     color:colors.main_blue,
-    alignSelf:'center'
+    marginTop: wp('5%'),
+    marginLeft:wp('7%'),
+    letterSpacing:1.5,
+    textDecorationLine:'underline'
   },
-  txtOff:{
-    fontSize:20,
-    fontWeight:'700',
-    color:colors.white,
-    alignSelf:'center'
-  },
-  box2:{
-    marginTop:25,
-    width: wp('90%'), 
-    height:190,
-    flexDirection: "row", 
-    justifyContent: 'space-between'
-  },
-  temperature_wrapper:{
-    flexDirection: "column",
-    width:wp('50%'),
-    height:146,
-    borderRadius:10,
-    shadowColor: colors.main_blue,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    elevation: 5, 
-    backgroundColor:colors.main_blue,
+  date_wrapper:{
+    flex:1,
+    flexDirection:"row",
+    width: wp('90%'),
+    alignSelf:'center',
+    justifyContent: 'space-around'
   },
   status_wrapper:{
     flexDirection: "column",
@@ -218,13 +182,13 @@ const home_styles = StyleSheet.create({
     },
     shadowOpacity: 1,
     elevation: 5, 
-    backgroundColor:colors.white,
+    backgroundColor:colors.background ,
   },
   item_wrapper:{
     flexDirection: "column",
     alignItems:'center',
-    width:wp('28%'),
-    height:115,
+    width:wp('25%'),
+    height:wp('25%'),
 
     borderRadius:10,
     shadowColor: colors.main_blue,
@@ -233,30 +197,39 @@ const home_styles = StyleSheet.create({
       height: 2,
     },
     shadowOpacity: 1,
-    elevation: 5, 
-    backgroundColor:colors.white,
+    elevation: 2, 
+    backgroundColor:colors.main_blue,
   },
   item_title:{
     flex:1,
-    fontSize:18,
-    fontWeight:'400',
+    fontSize:20,
+    fontWeight:'500',
     marginTop:8,
     marginBottom:8,
-    color:colors.main_blue,
+    color:colors.white,
     letterSpacing:2
   },
   item_status:{
     flex:2,
-    fontSize:24,
+    fontSize:32,
     fontWeight:'700',
-    color:colors.main_blue,
+    color:colors.white,
     letterSpacing:2
   },
+  txtLst:{
+    fontSize:22,
+    fontWeight:'600',
+    marginTop:5,
+    color:colors.red,
+    letterSpacing:2,
+    marginLeft:wp('55%'),
+  },
   btnHistory:{
-    width: wp('75%'),
+    flex:1,
+    width: wp('30%'),
     height:50,
-    marginTop:-30,
-    marginBottom:hp('5%'),
+    marginTop:wp('5%'),
+    marginBottom:wp('5%'),
     borderRadius:50,
     shadowColor: colors.main_blue,
     shadowOffset: {
@@ -267,12 +240,13 @@ const home_styles = StyleSheet.create({
     elevation: 5, 
     backgroundColor:colors.main_blue,
     justifyContent:'center',
-    alignItems:'center'
+    alignItems:'center',
+    alignSelf:'center',
   },
   txt_History:{
     fontSize:18,
     fontWeight:'400',
     color:colors.white,
   }
-})
+});
 export default HistoryDetail;

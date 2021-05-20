@@ -49,7 +49,8 @@ export default class MQTT {
             console.log("Connection lost! ", res);
         };
         this.MQTTObject.onMessageArrived = (message) => {
-            console.log("Message Arrived!: ", message.payloadString);
+            console.log("Message Arrived!: From ", message.destinationName);
+            console.log("Message content: ", message.payloadString);
             this.SetResponseFunction(message);
         };
         this.MQTTObject.onMessageDelivered = (message) => {

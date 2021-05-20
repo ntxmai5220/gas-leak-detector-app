@@ -87,7 +87,7 @@ const styless = StyleSheet.create({
     fontSize:16,
     color:colors.main_blue,
     position:'absolute',
-    top:hp('98%'),
+    bottom:hp('5%'),
     alignSelf: 'center',
     alignItems: "center",
   }, 

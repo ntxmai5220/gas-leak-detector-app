@@ -31,8 +31,9 @@ export const ConnectSetting = {
 };
 
 export const Topics = [{
-        name: 'navcul3108/feeds/kkllm-iot-relay',
-        thing: 'kkllm-iot-relay',
+        //johnwick123456
+        name: `${USER.userName}/feeds/kkllm-iot-relay`,
+        thing: 'relay',
         jsonobj: (payload) => {
             return {
                 id: "1",
@@ -43,7 +44,49 @@ export const Topics = [{
                 
         },
         on: '1',
-        off: '0'
+        off: '0',
+    },{
+        name: `${USER.userName}/feeds/kkllm-iot-speaker`,
+        thing: 'valve',
+        jsonobj: (payload) => {
+            return {
+                id: "3",
+                name: "SPEAKER",
+                data: payload,
+                unit: "",
+            };
+
+        },
+        on: '888',
+        off: '0',
+    },{
+        name: `${USER.userName}/feeds/kkllm-iot-lcd`,
+        thing: 'valve',
+        jsonobj: (payload) => {
+            return {
+                id: "5",
+                name: "LCD",
+                data: payload,
+                unit: "",
+            };
+
+        },
+        on: 'System WARNING!',
+        off: 'System normal',
+    },{
+        name: `${USER.userName}/feeds/kkllm-iot-led`,
+        thing: 'valve',
+        jsonobj: (payload) => {
+            return {
+                id: "1",
+                name: "LED",
+                data: payload,
+                unit: "",
+            };
+
+        },
+        on: '1',
+        off: '0',
     },
     // {
     //     name: 'johnwick123/feeds/fan',
@@ -77,20 +120,20 @@ export const Topics = [{
 ];
 
 export const Subscribe_Topics = [{
-        name: 'navcul3108/feeds/kkllm-iot-led',
-        thing: 'kkllm-iot-led',
+        //johnwick123456
+        name: `${USER.userName}/feeds/kkllm-iot-relay`,
+        thing: 'relay',
     },{
-        name: 'navcul3108/feeds/kkllm-iot-temp-humid',
-        thing: 'kkllm-iot-temp-humid',
+        name: `${USER.userName}/feeds/kkllm-iot-temp-humid`,
+        thing: 'temp',
+    },{
+        name: `${USER.userName}/feeds/kkllm-iot-gas`,
+        thing: 'gas',
     },
-    {
-        name:'navcul3108/feeds/kkllm-iot-gas',
-        thing:'kkllm-iot-gas'
-    },
-    {
-        name: 'navcul3108/feeds/kkllm-iot-relay',
-        thing:'kkllm-iot-relay'
-    }
+    // {
+    //     name: 'navcul3108/feeds/kkllm-iot-relay',
+    //     thing:'kkllm-iot-relay'
+    // }
     // {
     //     name: 'johnwick123/feeds/fan',
     //     thing: 'fan',

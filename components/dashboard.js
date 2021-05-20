@@ -91,9 +91,8 @@ class Dashboard extends Component{
             valve : 'OFF',
             fan: 'OFF',
             pump: 'OFF',
-            temp:0,
-            status:"ỔN ĐỊNH",
-            color:colors.white
+            temp: '0',
+            warning: false,
         }
 
         this.turnOnHandler = this.turnOnHandler.bind(this);
@@ -119,38 +118,33 @@ class Dashboard extends Component{
         title: 'Dashboard',  
     };
     
+    // main object update
     updateObjects(destinationName, data) {
         Subscribe_Topics.forEach(({ name, thing }) => {
             if (name == destinationName) {
-                // if (thing == 'valve') {
-                //     if (data == '1') this.setState({valve: 'ON'})
-                //     else this.setState({valve: 'OFF'});
-                // }
-                // if (thing == 'fan') {
-                //     if (data == '1') this.setState({fan: 'ON'})
-                //     else this.setState({fan: 'OFF'});
-                // }
-                if (thing=='kkllm-iot-relay'){
-                  if(data=='1'){
-                    this.setState({valve: 'ON'})
-                    this.setState({fan: 'ON'})
-                    this.setState({color:"#FFB6C1"})
-                  }else {
-                    this.setState({valve: 'OFF'})
-                    this.setState({fan: 'OFF'})
-                    this.setState({color:colors.white})
-
-                  }
+                if (thing == 'relay') {
+                    if (data == '1') {
+                        this.setState({valve: 'ON', fan: 'ON', pump: 'ON', warning: true});
+                    } else {
+                        this.setState({valve: 'OFF', fan: 'OFF', pump: 'OFF', warning: false});
+                    }    
                 }
-                if (thing=='kkllm-iot-temp-humid'){
-                  this.setState({temp:data})
+                if (thing == 'temp') {
+                    let t = data.split('-')[0];
+                    this.setState({temp: t});
+                    if (parseInt(t) > 37) {
+                        this.setState({ warning: true });
+                    } else {
+                        this.setState({ warning: false});
+                    }
                 }
-                if(thing=='kkllm-iot-gas'){
-                  if(data=='1'){
-                    this.setState({valve: 'ON'})
-                    this.setState({fan: 'ON'})
-                    this.setState({color:"#FFB6C1"})
-                  }
+                if (thing == 'gas') {
+                    let t = data.split('-')[0];
+                    if (data == '1') {
+                        this.turnOnHandler();
+                    } else {
+                        this.turnOffHandler();
+                    }
                 }
             }
         });
@@ -200,29 +194,30 @@ class Dashboard extends Component{
             <View style={home_styles.box2}>
                 <View style={home_styles.temperature_wrapper}>
                 <Text style={home_styles.txtWhite_title}>NHIỆT ĐỘ</Text>
-                <Text style={home_styles.txtWhite_nhietdo}>{this.state.temp}</Text>
+                <Text style={home_styles.txtWhite_nhietdo}>{ this.state.temp }</Text>
                 </View>
-                <View style={home_styles.status_wrapper}>
-                <Text style={home_styles.txtBlue_title}>HỆ THỐNG</Text>
-                <Text style={home_styles.txt_Hethong}>{this.state.status}</Text>
+                <View style={[home_styles.status_wrapper,this.state.warning?{backgroundColor:colors.red}:{backgroundColor:colors.white}]}>
+                <Text style={[home_styles.txtBlue_title,this.state.warning?{color:colors.white}:{color:colors.main_blue}]}>HỆ THỐNG</Text>
+                <Text style={[home_styles.txt_Hethong,this.state.warning?{color:colors.white}:{color:colors.green}]}>
+                  {this.state.warning?'CẢNH BÁO':'ỔN ĐỊNH'}</Text>
                 </View>
             </View>
             <CustomChart/>
             <View style={home_styles.box2}>
-                <View style={[home_styles.item_wrapper,{backgroundColor:this.state.color}]}>
+                <View style={[home_styles.item_wrapper]}>
                 <Text style={home_styles.item_title}>VAN GAS</Text>
-                <Text style={home_styles.item_status}>{ this.state.valve }</Text>
+                <Text style={[home_styles.item_status,this.state.warning?{color:colors.red}:{color:colors.main_blue}]}>{ this.state.valve }</Text>
                 </View>
-                <View style={[home_styles.item_wrapper,{backgroundColor:this.state.color}]}>
+                <View style={[home_styles.item_wrapper]}>
                 <Text style={home_styles.item_title}>QUẠT</Text>
-                <Text style={home_styles.item_status}>{ this.state.fan }</Text>
+                <Text style={[home_styles.item_status,this.state.warning?{color:colors.red}:{color:colors.main_blue}]}>{ this.state.fan }</Text>
                 </View>
                 <View style={home_styles.item_wrapper}>
-                <Text style={home_styles.item_title}>BƠM</Text>
-                <Text style={home_styles.item_status}>OFF</Text>
+                <Text style={home_styles.item_title}>MÁY BƠM</Text>
+                <Text style={[home_styles.item_status,this.state.warning?{color:colors.red}:{color:colors.main_blue}]}>{ this.state.pump }</Text>
                 </View>
             </View>
-            <TouchableOpacity onPress={() => Alert.alert('Cannot press this one')} style={home_styles.btnHistory}>
+            <TouchableOpacity onPress={() => this.props.navigation.navigate('History')} style={home_styles.btnHistory}>
                 <Text style={home_styles.txt_History}>XEM LỊCH SỬ HOẠT ĐỘNG</Text>
             </TouchableOpacity>
             </View>
