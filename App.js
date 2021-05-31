@@ -22,46 +22,46 @@ export default function App() {
 }
 
 const AppDrawerNavigator = createDrawerNavigator({ 
-  Login: {  
-      screen: LoginStackNavigator  ,
-   },  
-   Registration: {  
-      screen: RegistrationStackNavigator  
-  }});
+    Login: {  
+        screen: LoginStackNavigator  ,
+    },  
+    Registration: {  
+        screen: RegistrationStackNavigator  
+    }});
 
 const Custom_AppDrawerNavigator1=(props)=>(
-  <SafeAreaView>
-    {/* <View></View> */}
-    <View style={{height: hp('30%'),alignItems:'center',justifyContent:'center'}}>
-    <Image source={require('./assets/logo.png')} style={{height:wp('35%'),width:wp('35%'),alignSelf:'center'}}/>
-    </View>
-    <ScrollView>
-      <DrawerItems {...props}/>
-    </ScrollView>
-  </SafeAreaView>
+    <SafeAreaView>
+        {/* <View></View> */}
+        <View style={{height: hp('30%'),alignItems:'center',justifyContent:'center'}}>
+        <Image source={require('./assets/logo.png')} style={{height:wp('35%'),width:wp('35%'),alignSelf:'center'}}/>
+        </View>
+        <ScrollView>
+        <DrawerItems {...props}/>
+        </ScrollView>
+    </SafeAreaView>
 );
 const AppDrawerNavigator1 = createDrawerNavigator({ 
-  Dashboard:{  
-      screen: DashboardStackNavigator
-  },
-  History: {  
-      screen: HistoryStackNavigator
-  },  
-  Profile: {  
-      screen: ProfileStackNavigator
-  },
-  Logout:{
-    screen: LoginStackNavigator 
-  }
+    Dashboard:{  
+        screen: DashboardStackNavigator
+    },
+    History: {  
+        screen: HistoryStackNavigator
+    },  
+    Profile: {  
+        screen: ProfileStackNavigator
+    },
+    Logout:{
+        screen: LoginStackNavigator 
+    }
 },{
-  contentComponent:Custom_AppDrawerNavigator1
+    contentComponent:Custom_AppDrawerNavigator1
 });
 
 const AppSwitchNavigator = createSwitchNavigator({ 
-  Login: { screen: AppDrawerNavigator }, 
-  Profile: {
-    screen: AppDrawerNavigator1
-  }
+    Login: { screen: AppDrawerNavigator }, 
+    Profile: {
+        screen: AppDrawerNavigator1
+    }
 }); 
 // const Drawer = createDrawerNavigator();
 

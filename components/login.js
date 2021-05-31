@@ -110,7 +110,9 @@ class Login extends Component {
     _onSubmit=()=>{
       //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
       //console.log(this.state.password)
-      return fetch('http://192.168.43.123:3000/login', { 
+      // const loginlink = 'http://192.168.43.123:3000/login';
+      const loginlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/login';
+      return fetch(loginlink, { 
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -165,46 +167,48 @@ class Login extends Component {
     };
     render() {  
         return ( 
-          // <View style={styless.container}>
-          <ImageBackground source={require('../assets/login-background.png')} style={styless.image}>
-            <View style={styless.container,{flex:1}}>
-              <View style={{flex:1, alignItems:'center'}}></View>
-              <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
-              <View style={{flex:2, alignItems:'center'}}></View>
+            // <View style={styless.container}>
+            <ImageBackground source={require('../assets/login-background.png')} style={styless.image}>
+                <View style={styless.container,{flex:1}}>
+                    <View style={{flex:1, alignItems:'center'}}></View>
+                    <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
+                    <View style={{flex:2, alignItems:'center'}}></View>
 
-              <View style={{flex:4, alignItems: 'center'}}>
-                <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your email and password</Text>
-                <TextInput placeholder="Email"
-                    placeholderTextColor={colors.main_blue}
-                    underlineColorAndroid="transparent"
-                    style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}/>
-                <TextInput placeholder="Password"
-                    placeholderTextColor={colors.main_blue}
-                    underlineColorAndroid="transparent"
-                    secureTextEntry={true}
-                    style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
-                {/* <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
-                    <Text style={styless.txtLogin}>Login</Text>
-                </TouchableOpacity> */}
-                <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
-                {/* ()=>{this.props.navigation.navigate('Profile')} */}
-                    <Text style={styless.txtLogin}>Login</Text>
-                </TouchableOpacity>
-                <Text style={{flex:1}} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text>
-         
-              </View>
-        {/* <Button title="Go to Home"/> */}
-        {/* <HomeScreen /> */}
-        <Text style={{flex:1}}></Text>
-            <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
-            </View>
-          </ImageBackground>
-          // </View>
-          );  
+                    <View style={{flex:4, alignItems: 'center'}}>
+                        <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your email and password</Text>
+                        <TextInput placeholder="Email"
+                            placeholderTextColor={colors.main_blue}
+                            underlineColorAndroid="transparent"
+                            style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}
+                        />
+                        <TextInput placeholder="Password"
+                            placeholderTextColor={colors.main_blue}
+                            underlineColorAndroid="transparent"
+                            secureTextEntry={true}
+                            style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}
+                        />
+                        {/* <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
+                            <Text style={styless.txtLogin}>Login</Text>
+                        </TouchableOpacity> */}
+                        <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
+                        {/* ()=>{this.props.navigation.navigate('Profile')} */}
+                            <Text style={styless.txtLogin}>Login</Text>
+                        </TouchableOpacity>
+                        {/* <Text style={{flex:1}} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text> */}
+                
+                    </View>
+                    {/* <Button title="Go to Home"/> */}
+                    {/* <HomeScreen /> */}
+                    <Text style={{flex:1}}></Text>
+                    <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
+                </View>
+            </ImageBackground>
+            // </View>
+        );  
     }
-}  
-const LoginStackNavigator = createStackNavigator(  
-    {  
-        LoginNavigator: Login 
-    }  );
+}
+
+const LoginStackNavigator = createStackNavigator({  
+    LoginNavigator: Login 
+});
 export default LoginStackNavigator;
