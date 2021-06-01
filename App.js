@@ -2,10 +2,11 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, Image, View, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
 import LoginStackNavigator from './components/login';
+import LogoutStackNavigator from './components/logout';
 import RegistrationStackNavigator from './components/registration';
 import ProfileStackNavigator from './components/profile';
 import HistoryStackNavigator from './components/history';
-import DashboardStackNavigator from './components/dashboard'
+import DashboardStackNavigator from './components/dashboard';
 import {  
   createSwitchNavigator,  
   createAppContainer
@@ -51,7 +52,7 @@ const AppDrawerNavigator1 = createDrawerNavigator({
         screen: ProfileStackNavigator
     },
     Logout:{
-        screen: LoginStackNavigator 
+        screen: LogoutStackNavigator 
     }
 },{
     contentComponent:Custom_AppDrawerNavigator1
