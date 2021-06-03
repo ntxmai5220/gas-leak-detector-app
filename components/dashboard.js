@@ -31,56 +31,14 @@ import { interpolate } from 'react-native-reanimated';
   6.  Viết hàm cho button Bật/tắt báo động, gửi tín hiệu về cho server điều khiển thiết bị
  */
 
-const data = {
-  labels: ['1:00', '4:00', '7:00', '10:00', '13:00', '16:00', '19:00', '22:00', //'17:00', '19:00'
-  // , '13:00', '15:00', '17:00'
-  ],
-        datasets: [{
-          data: [
-            29.0,
-            24.3,
-            26.0,
-            28.1,
-            32.0,
-            33.4,
-            35.0,
-            // 35.5,
-            // 34.0,
-            10,
-            // 30.0,
-          ]
-        }]
-}
-//chart
-const CustomChart = () => {
-  return(
-    <View>
-      <LineChart
-      //segments={5}
-      data={data}
-      width={wp('105%')} // from react-native
-      height={240}
-      chartConfig={chartConfig}
-      //fromZero
-      bezier
-      //maxValue={45}
-      style={{alignSelf:"center", marginTop:-10}}
-      //formatYLabel={() => yLabelIterator.next().value}
-      />
-    </View>
-  );
-};
 
 
-// init({
-//     size: 10000,
-//     storageBackend: AsyncStorage,
-//     defaultExpires: 1000 * 3600 * 24,
-//     enableCache: true,
-//     sync: {},
-// });
-
-
+const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
+const user_name = 'CSE_BBC';
+const feed = 'bk-iot-temp-humid';
+const distance = 5;
+const chart_col = 12;
+const data_limit = distance * chart_col;
 
 
 
@@ -93,6 +51,26 @@ class Dashboard extends Component{
             pump: 'OFF',
             temp: '0',
             warning: false,
+            data: {
+                labels: ['1:00', '4:00', '7:00', '10:00', '13:00', '16:00', '19:00', '22:00', //'17:00', '19:00'
+                // , '13:00', '15:00', '17:00'
+                ],
+                datasets: [{
+                    data: [
+                        29.0,
+                        24.3,
+                        26.0,
+                        28.1,
+                        32.0,
+                        33.4,
+                        35.0,
+                        // 35.5,
+                        // 34.0,
+                        10,
+                        // 30.0,
+                    ]
+                }]
+            }
         }
 
         this.turnOnHandler = this.turnOnHandler.bind(this);
@@ -111,8 +89,9 @@ class Dashboard extends Component{
             this.updateObjects(message.destinationName, val);
         }
         this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
-        
+        this.getInitChartData();
     }
+
     
     static navigationOptions = {  
         title: 'Dashboard',  
@@ -151,6 +130,61 @@ class Dashboard extends Component{
             }
         });
     }
+
+    getInitChartData = () => {
+
+        const self = this;
+
+        fetch(`https://io.adafruit.com/api/v2/${user_name}/feeds/${feed}/data?limit=${data_limit}`, {
+            method: 'GET',
+            headers: {
+                'X-AIO-Key': iokey
+            }
+        })
+        .then(response => response.json())
+        .then(function(response) {
+            console.log("response:");
+            console.log(response);
+
+            //---------------------------
+            var lb = [];
+            var dt = [];
+
+            var count = 0;
+        
+            response.forEach(elem => {
+                count += 1;
+                if (count % distance == 1) {
+                    let d = new Date(elem["created_at"]);
+                    lb.push(d.toTimeString());
+                    dt.push(parseInt(JSON.parse(elem["value"])["data"]));
+                }
+        
+            });
+        
+            console.log(lb);
+            console.log(dt);
+        
+            // data.labels = lb;
+            // data.datasets[0]["data"] = dt;
+            self.setState({
+                data: {
+                    labels: lb,
+                    datasets: [{
+                        data: dt
+                    }]
+                }
+            })
+            
+            // console.log(response["data"]["columns"])
+            // console.log(response["data"]["data"])
+        })
+        .catch(function (err) {
+            console.log("Error!");
+            console.log(err);
+        })
+    }
+
     
     subscribeTopics() {
         console.log("Subscribing");
@@ -204,7 +238,21 @@ class Dashboard extends Component{
                   {this.state.warning?'CẢNH BÁO':'ỔN ĐỊNH'}</Text>
                 </View>
             </View>
-            <CustomChart/>
+            {/* <CustomChart/> */}
+            <View>
+                <LineChart
+                    //segments={5}
+                    data={this.state.data}
+                    width={wp('105%')} // from react-native
+                    height={240}
+                    chartConfig={chartConfig}
+                    //fromZero
+                    bezier
+                    //maxValue={45}
+                    style={{alignSelf:"center", marginTop:-10}}
+                    //formatYLabel={() => yLabelIterator.next().value}
+                />
+            </View>
             <View style={home_styles.box2}>
                 <View style={[home_styles.item_wrapper]}>
                 <Text style={home_styles.item_title}>VAN GAS</Text>
