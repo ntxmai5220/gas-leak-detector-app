@@ -140,8 +140,8 @@ class Registration extends Component{
       <View style={styless.container}>
       <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
       <View style ={{flex:4}}>
-        <Text style={{fontSize:20,color:'white',fontWeight: "bold"}}>Information for your account</Text>
-        <TextInput placeholder="Full name"
+        <Text style={{fontSize:20,color:'white',fontWeight: "bold"}}>Thông tin tài khoản</Text>
+        <TextInput placeholder="Họ tên"
            placeholderTextColor={colors.main_blue}
            underlineColorAndroid="transparent"
            style={styless.txtInput}  onChangeText={(fullname) => this.setState({fullname:fullname})}/>
@@ -149,21 +149,21 @@ class Registration extends Component{
            placeholderTextColor={colors.main_blue}
            underlineColorAndroid="transparent"
            style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}/>
-        <TextInput placeholder="Password"
+        <TextInput placeholder="Mật khẩu"
             underlineColorAndroid="transparent"
             placeholderTextColor={colors.main_blue}
             secureTextEntry={true}
             style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
-          <TextInput placeholder="password Confirm"
+          <TextInput placeholder="Xác nhận mật khẩu"
            placeholderTextColor={colors.main_blue}
            underlineColorAndroid="transparent"
            style={styless.txtInput}  onChangeText={(passwordConfirm) => this.setState({passwordConfirm:passwordConfirm})}/>
         <TouchableOpacity onPress={this._onSubmit} style={styless.btnReg}>
-            <Text style={styless.txtReg}>Registration</Text>
+            <Text style={styless.txtReg}>Đăng ký</Text>
         </TouchableOpacity>
         </View>
         <View style={{flex:1}}>
-        <Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Login</Text>
+        <Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Đăng nhập</Text>
         {/* <Button title="Go to Home"/> */}
         {/* <HomeScreen /> */}
       </View>

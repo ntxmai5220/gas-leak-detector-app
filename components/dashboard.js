@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';  
+import React, { Component, useState} from 'react';  
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
 import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button, ScrollView} from 'react-native'; 
 import { createStackNavigator } from 'react-navigation-stack';
@@ -18,7 +18,7 @@ import {AsyncStorage} from "../node_modules/react-native";
 import init from 'react_native_mqtt';
 import uuid from 'react-native-uuid';
 import { interpolate } from 'react-native-reanimated';
-
+import * as Notifications from 'expo-notifications';
 
 
 /*
@@ -46,7 +46,7 @@ class Dashboard extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            valve : 'OFF',
+            valve : 'ON',
             fan: 'OFF',
             pump: 'OFF',
             temp: '0',
@@ -94,7 +94,7 @@ class Dashboard extends Component{
 
     
     static navigationOptions = {  
-        title: 'Dashboard',  
+        title: 'Trang chủ',  
     };
     
     // main object update
@@ -103,17 +103,18 @@ class Dashboard extends Component{
             if (name == destinationName) {
                 if (thing == 'relay') {
                     if (data == '1') {
-                        this.setState({valve: 'ON', fan: 'ON', pump: 'ON', warning: true});
+                        this.setState({valve: 'OFF', fan: 'ON', pump: 'ON', warning: true});
                     } else {
-                        this.setState({valve: 'OFF', fan: 'OFF', pump: 'OFF', warning: false});
+                        this.setState({valve: 'ON', fan: 'OFF', pump: 'OFF', warning: false});
                     }    
                 }
                 if (thing == 'temp') {
                     let t = data.split('-')[0];
                     this.setState({temp: t});
-                    if (parseInt(t) > 37) {
+                    if (parseFloat(t) > 37) {
                         // this.setState({ warning: true });
                         this.turnOnHandler();
+                        this.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
                     } else {
                         // this.setState({ warning: false});
                         this.turnOffHandler();
@@ -123,6 +124,7 @@ class Dashboard extends Component{
                     let t = data.split('-')[0];
                     if (data == '1') {
                         this.turnOnHandler();
+                        this.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
                     } else {
                         this.turnOffHandler();
                     }
@@ -184,8 +186,15 @@ class Dashboard extends Component{
             console.log(err);
         })
     }
-
-    
+    schedulePushNotification(mess) {
+        Notifications.scheduleNotificationAsync({
+            content: {
+            title: "HỆ THỐNG BÁO ĐỘNG được kích hoạt !!",
+            body: mess,
+            },
+            trigger: { seconds: 1 },
+        });
+    }
     subscribeTopics() {
         console.log("Subscribing");
         Subscribe_Topics.forEach((sub_topic) => {
@@ -275,6 +284,7 @@ class Dashboard extends Component{
         );
     }
 };
+
 const DashboardStackNavigator = createStackNavigator(  
     {  
         LoginNavigator: Dashboard

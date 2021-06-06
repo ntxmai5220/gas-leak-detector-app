@@ -62,12 +62,12 @@ const style=StyleSheet.create({
 });
 class Profile extends Component{
     static navigationOptions = {  
-        title: 'Profile',  
+        title: 'Hồ sơ',  
    };  
    constructor(props) {
     super(props);
     this.state = {
-      tableHead: ['ID', 'Name', 'Time', 'State'],
+      tableHead: ['ID', 'Tên', 'Thời gian', 'Trạng thái'],
       widthArr: [50,200,100,100],
       name:"",
       email:""
@@ -109,7 +109,7 @@ render(){
             <Text style={style.padd_text}>Email: {this.state.email}</Text>
             {/* <Text style={{flex:1}}>Name</Text> */}
             <View style={{flex:6}}>
-            <Text style={{flex:1,fontSize:20}}>Device</Text>
+            <Text style={{flex:1,fontSize:20}}>Thiết bị</Text>
             {/* <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Profile')}} style={style.btnLogin}>
                     <Text style={style.txtLogin}>Add Device</Text>
                 </TouchableOpacity> */}

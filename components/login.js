@@ -57,7 +57,7 @@ const styless = StyleSheet.create({
     paddingRight:hp('2%'),
   },
   btnLogin:{
-    width: wp('40%'),
+    width: wp('50%'),
     height:50,
     backgroundColor:colors.main_blue,
     borderRadius:30,
@@ -78,7 +78,7 @@ const styless = StyleSheet.create({
     color:'#fff',
     fontWeight:'700',
     fontSize:20,
-    letterSpacing:1.5,
+    letterSpacing:1.2,
     textTransform:'uppercase',
     textAlign: 'center',
     padding:10,
@@ -86,8 +86,8 @@ const styless = StyleSheet.create({
   txtReg:{
     fontSize:16,
     color:colors.main_blue,
-    position:'absolute',
-    bottom:hp('5%'),
+    position:'relative',
+    top:hp('2%'),
     alignSelf: 'center',
     alignItems: "center",
   }, 
@@ -175,13 +175,13 @@ class Login extends Component {
                     <View style={{flex:2, alignItems:'center'}}></View>
 
                     <View style={{flex:4, alignItems: 'center'}}>
-                        <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Enter your email and password</Text>
+                        <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Điền thông tin để đăng nhập</Text>
                         <TextInput placeholder="Email"
                             placeholderTextColor={colors.main_blue}
                             underlineColorAndroid="transparent"
                             style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}
                         />
-                        <TextInput placeholder="Password"
+                        <TextInput placeholder="Mật khẩu"
                             placeholderTextColor={colors.main_blue}
                             underlineColorAndroid="transparent"
                             secureTextEntry={true}
@@ -192,15 +192,14 @@ class Login extends Component {
                         </TouchableOpacity> */}
                         <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
                         {/* ()=>{this.props.navigation.navigate('Profile')} */}
-                            <Text style={styless.txtLogin}>Login</Text>
+                            <Text style={styless.txtLogin}>Đăng nhập</Text>
                         </TouchableOpacity>
                         {/* <Text style={{flex:1}} onPress={() => this.props.navigation.navigate('Dashboard')}>Dashboard</Text> */}
-                
+                        <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Đăng ký</Text>
                     </View>
                     {/* <Button title="Go to Home"/> */}
                     {/* <HomeScreen /> */}
-                    <Text style={{flex:1}}></Text>
-                    <Text style={{flex:1},styless.txtReg} onPress={() => this.props.navigation.navigate('Registration')}>Registration</Text>
+                    
                 </View>
             </ImageBackground>
             // </View>

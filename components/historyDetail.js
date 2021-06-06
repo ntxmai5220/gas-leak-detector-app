@@ -106,7 +106,7 @@ class HistoryDetail extends Component{
     }
 
     static navigationOptions = {  
-        title: 'History Detail',  
+        title: 'Lịch sử ngày',  
         
     };
 

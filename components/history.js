@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
 
 class History extends Component{
     static navigationOptions = {  
-        title: 'History',  
+        title: 'Lịch sử',  
     };
     _date_submit = (day) => {
         console.log("do some thing with this: ", day);
