@@ -7,63 +7,21 @@ import { Table, TableWrapper, Row } from 'react-native-table-component';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import colors from '../assets/colors'
-const style=StyleSheet.create({
 
-    image_icon:{
-        flex:1,
-        width:150,
-        alignSelf:'center',
-        borderWidth:  3,
-        borderRadius:250,
-        borderColor:"black",
-        resizeMode: "cover",
-        //backgroundColor:"#58D3F7"
-    },
-    padd_text:{
-        flex:0.5,
-        paddingRight:hp('10%'),
-        // borderRadius:30,
-    borderWidth:3,
-    borderColor: "#D8D8D8",
-    borderLeftWidth:0,
-    borderRightWidth:0,
-    // marginTop:hp('1%'),
-    marginBottom:hp('1%'),
-    fontSize:20,
-    padding:10
-    },
-    btnLogin:{
-        width: wp('40%'),
-        height:50,
-        backgroundColor:colors.main_blue,
-        borderRadius:30,
-    
-        shadowColor: colors.main_blue,
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.9,
-        shadowRadius: 1,
-        elevation: 5, 
-        alignSelf: 'center',
-        alignItems: "center",
-        marginTop:hp('4%'),
-      },
-      txtLogin:{
-        color:'#fff',
-        fontWeight:'700',
-        fontSize:20,
-        letterSpacing:1.5,
-        textTransform:'uppercase',
-        textAlign: 'center',
-        padding:10,
-      }
-});
 class Profile extends Component{
-    static navigationOptions = {  
-        title: 'Hồ sơ',  
-   };  
+    static navigationOptions = ({ navigation }) => {  
+            return {  
+                title: 'Thông tin người dùng',
+                headerLeft: (  
+                    <Icon  
+                        style={{ paddingLeft: 10 }}  
+                        onPress={() => navigation.openDrawer()}  
+                        name="md-menu"  
+                        size={30}  
+                    />  
+                )  
+            };   
+    }; 
    constructor(props) {
     super(props);
     this.state = {
@@ -141,6 +99,59 @@ render(){
     </View>
     )}
 };
+const style=StyleSheet.create({
+
+    image_icon:{
+        flex:1,
+        width:150,
+        alignSelf:'center',
+        borderWidth:  3,
+        borderRadius:250,
+        borderColor:"black",
+        resizeMode: "cover",
+        //backgroundColor:"#58D3F7"
+    },
+    padd_text:{
+        flex:0.5,
+        paddingRight:hp('10%'),
+        // borderRadius:30,
+    borderWidth:3,
+    borderColor: "#D8D8D8",
+    borderLeftWidth:0,
+    borderRightWidth:0,
+    // marginTop:hp('1%'),
+    marginBottom:hp('1%'),
+    fontSize:20,
+    padding:10
+    },
+    btnLogin:{
+        width: wp('40%'),
+        height:50,
+        backgroundColor:colors.main_blue,
+        borderRadius:30,
+    
+        shadowColor: colors.main_blue,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.9,
+        shadowRadius: 1,
+        elevation: 5, 
+        alignSelf: 'center',
+        alignItems: "center",
+        marginTop:hp('4%'),
+      },
+      txtLogin:{
+        color:'#fff',
+        fontWeight:'700',
+        fontSize:20,
+        letterSpacing:1.5,
+        textTransform:'uppercase',
+        textAlign: 'center',
+        padding:10,
+      }
+});
 const styles = StyleSheet.create({
     container: { 
       flex: 1, 
@@ -164,23 +175,9 @@ const styles = StyleSheet.create({
       backgroundColor: '#F7F8FA' 
     }
   });
-const ProfileStackNavigator = createStackNavigator(  
+const ProfileComponent = createStackNavigator(  
     {  
-        LoginNavigator: Profile  
-    },
-    {  
-        defaultNavigationOptions: ({ navigation }) => {  
-            return {  
-                headerLeft: (  
-                    <Icon  
-                        style={{ paddingLeft: 10 }}  
-                        onPress={() => navigation.openDrawer()}  
-                        name="md-menu"  
-                        size={30}  
-                    />  
-                )  
-            };  
-        }  
-    }  
-      );
-export default ProfileStackNavigator;
+        Profile: Profile  
+    }
+);
+export default ProfileComponent;

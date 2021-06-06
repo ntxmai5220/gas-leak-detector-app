@@ -43,6 +43,19 @@ const data_limit = distance * chart_col;
 
 
 class Dashboard extends Component{
+    static navigationOptions = ({ navigation }) => {  
+            return {  
+                title: 'Trang chủ',
+                headerLeft: (  
+                    <Icon  
+                        style={{ paddingLeft: 10 }}  
+                        onPress={() => navigation.openDrawer()}  
+                        name="md-menu"  
+                        size={30}  
+                    />  
+                )  
+            };   
+    };
     constructor(props) {
         super(props);
         this.state = {
@@ -91,12 +104,6 @@ class Dashboard extends Component{
         this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
         this.getInitChartData();
     }
-
-    
-    static navigationOptions = {  
-        title: 'Trang chủ',  
-    };
-    
     // main object update
     updateObjects(destinationName, data) {
         Subscribe_Topics.forEach(({ name, thing }) => {
@@ -276,35 +283,11 @@ class Dashboard extends Component{
                 <Text style={[home_styles.item_status,this.state.warning?{color:colors.red}:{color:colors.main_blue}]}>{ this.state.pump }</Text>
                 </View>
             </View>
-            <TouchableOpacity onPress={() => this.props.navigation.navigate('History')} style={home_styles.btnHistory}>
-                <Text style={home_styles.txt_History}>XEM LỊCH SỬ HOẠT ĐỘNG</Text>
-            </TouchableOpacity>
             </View>
             </ScrollView>
         );
     }
 };
-
-const DashboardStackNavigator = createStackNavigator(  
-    {  
-        LoginNavigator: Dashboard
-  
-    },
-    {  
-        defaultNavigationOptions: ({ navigation }) => {  
-            return {  
-                headerLeft: (  
-                    <Icon  
-                        style={{ paddingLeft: 10 }}  
-                        onPress={() => navigation.openDrawer()}  
-                        name="md-menu"  
-                        size={30}  
-                    />  
-                )  
-            };  
-        }  
-    }  
-      );
 
 
 const chartConfig={
@@ -336,7 +319,7 @@ const home_styles = StyleSheet.create({
     flexDirection: "column",
     alignItems:'center',
     //justifyContent:'space-around',
-    paddingTop:25,
+    paddingTop:20,
     backgroundColor:colors.background,
   },
   control_wrapper:{
@@ -482,27 +465,10 @@ const home_styles = StyleSheet.create({
     color:colors.main_blue,
     letterSpacing:2
   },
-  btnHistory:{
-    width: wp('75%'),
-    height:50,
-    marginTop:-30,
-    marginBottom:hp('5%'),
-    borderRadius:50,
-    shadowColor: colors.main_blue,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    elevation: 5, 
-    backgroundColor:colors.main_blue,
-    justifyContent:'center',
-    alignItems:'center'
-  },
-  txt_History:{
-    fontSize:18,
-    fontWeight:'400',
-    color:colors.white,
-  }
 })
-export default DashboardStackNavigator;
+const DashboardComponent = createStackNavigator(  
+    {  
+        Dashboard: Dashboard,
+    }
+);
+export default DashboardComponent;

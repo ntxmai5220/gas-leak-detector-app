@@ -70,7 +70,7 @@ const feed = 'bk-iot-temp-humid';
     
 //   );
 // }
-class HistoryDetail extends Component{
+class HistoryDetailComponent extends Component{
     constructor(props) {  
         super(props);  
         this.state = {  
@@ -212,15 +212,13 @@ class HistoryDetail extends Component{
                         {key: 'time3'},
                         {key: 'time4'},
                         {key: 'time5'},
-                        {key: 'time6'},
-                        {key: 'time7'},
                     ]}
                     renderItem={({item}) => <Text style={styles.txtLst}>{item.key}</Text>}
                     />
                 </View>
-                <TouchableOpacity onPress={ () => this.props.navigation.goBack() } style={styles.btnHistory}>
+                {/* <TouchableOpacity onPress={ () => this.props.navigation.goBack() } style={styles.btnHistory}>
                     <Text style={styles.txt_History}>Quay Lại</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             
             
             </ScrollView>
@@ -352,4 +350,4 @@ const styles = StyleSheet.create({
         color:colors.white,
     }
 });
-export default HistoryDetail;
+export default HistoryDetailComponent;

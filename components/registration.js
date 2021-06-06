@@ -261,8 +261,8 @@ const styless = StyleSheet.create({
   }
   
 });
-const RegistrationStackNavigator = createStackNavigator(  
+const RegistrationComponent = createStackNavigator(  
     {  
-        LoginNavigator: Registration  
-    }  );
-export default RegistrationStackNavigator;
+        Registration: Registration  
+    });
+export default RegistrationComponent;

@@ -7,21 +7,21 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {Calendar, CalendarList, Agenda} from 'react-native-calendars';
 import HistoryDetail from './historyDetail';
 import colors from '../assets/colors'
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-    },
-    calendar: {
-        flex: 1,
-        marginLeft: 20,
-        marginRight: 20,
-        marginTop: 20,
-    },
-});
+
 
 class History extends Component{
-    static navigationOptions = {  
-        title: 'Lịch sử',  
+    static navigationOptions = ({ navigation }) => {  
+            return {  
+                title: 'Lịch sử',
+                headerLeft: (  
+                    <Icon  
+                        style={{ paddingLeft: 10 }}  
+                        onPress={() => navigation.openDrawer()}  
+                        name="md-menu"  
+                        size={30}  
+                    />  
+                )  
+            };   
     };
     _date_submit = (day) => {
         console.log("do some thing with this: ", day);
@@ -55,24 +55,20 @@ class History extends Component{
             </View>
         )}
     };
-const HistoryStackNavigator = createStackNavigator(  
-    {  
+    const styles = StyleSheet.create({
+        container: {
+            flexDirection: 'row',
+        },
+        calendar: {
+            flex: 1,
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 20,
+        },
+    });
+    const HistoryComponent = createStackNavigator({  
         History: History,
         HistoryDetail: HistoryDetail
-    },
-    {  
-        defaultNavigationOptions: ({ navigation }) => {  
-            return {  
-                headerLeft: (  
-                    <Icon  
-                        style={{ paddingLeft: 10 }}  
-                        onPress={() => navigation.goBack()}  
-                        name="md-menu"  
-                        size={30}  
-                    />  
-                )  
-            };  
-        }  
-    }  
-);
-export default HistoryStackNavigator;
+        }
+    );
+export default HistoryComponent;

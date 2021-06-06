@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useRef }  from 'react';
 import { StyleSheet, Text, Image, View, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
-import LoginStackNavigator from './components/login';
-import LogoutStackNavigator from './components/logout';
-import RegistrationStackNavigator from './components/registration';
-import ProfileStackNavigator from './components/profile';
-import HistoryStackNavigator from './components/history';
-import DashboardStackNavigator from './components/dashboard';
+import LoginComponent from './components/login';
+import LogoutComponent from './components/logout';
+import RegistrationComponent from './components/registration';
+import ProfileComponent from './components/profile';
+import HistoryComponent from './components/history';
+import HistoryDetailComponent from './components/historyDetail';
+import DashboardComponent from './components/dashboard';
 import {  
   createSwitchNavigator,  
   createAppContainer
@@ -49,17 +50,17 @@ export default function App() {
     };
   }, []);
 
-  return (
-    <AppContainer />
-  );
+    return (
+      <AppContainer/>
+    );
 }
 
 const AppDrawerNavigator = createDrawerNavigator({ 
     Login: {  
-        screen: LoginStackNavigator  ,
+        screen: LoginComponent  ,
     },  
     Registration: {  
-        screen: RegistrationStackNavigator  
+        screen: RegistrationComponent  
     }});
 
 const Custom_AppDrawerNavigator1=(props)=>(
@@ -78,35 +79,36 @@ const AppDrawerNavigator1 = createDrawerNavigator({
         navigationOptions: () => ({
             title: 'Trang chủ',
           }),
-        screen: DashboardStackNavigator
+        screen: DashboardComponent
     },
     History: {  
         navigationOptions: () => ({
             title: 'Lịch sử',
           }),
-        screen: HistoryStackNavigator
+        screen: HistoryComponent
     },  
     Profile: {  
         navigationOptions: () => ({
-            title: 'Hồ sơ',
+            title: 'Thông tin người dùng',
           }),
-        screen: ProfileStackNavigator
+        screen: ProfileComponent
     },
     Logout:{
         navigationOptions: () => ({
             title: 'Đăng xuất',
           }),
-        screen: LogoutStackNavigator 
+        screen: LogoutComponent 
     }
 },{
-    contentComponent:Custom_AppDrawerNavigator1
+  initialRouteName:'Dashboard',
+  contentComponent:Custom_AppDrawerNavigator1,   
 });
 
 const AppSwitchNavigator = createSwitchNavigator({ 
-    Login: { screen: AppDrawerNavigator }, 
-    Profile: {
+    Welcome: { screen: AppDrawerNavigator }, 
+    Main: {
         screen: AppDrawerNavigator1
-    }
+    },
 }); 
 
 

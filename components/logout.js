@@ -57,7 +57,7 @@ const styless = StyleSheet.create({
     paddingRight:hp('2%'),
   },
   btnLogin:{
-    width: wp('40%'),
+    width: wp('45%'),
     height:50,
     backgroundColor:colors.main_blue,
     borderRadius:30,
@@ -146,7 +146,7 @@ class Logout extends Component {
             <View style={styless.container}>
                 <Text style={{fontSize:15, color:colors.main_blue, marginTop:30, alignSelf:'center'}}>Logout?</Text>
                 <TouchableOpacity onPress={this._onSubmit} style={styless.btnLogin}>
-                    <Text style={styless.txtLogin}>Logout</Text>
+                    <Text style={styless.txtLogin}>Đăng xuất</Text>
                 </TouchableOpacity>
             </View>
             
@@ -154,7 +154,7 @@ class Logout extends Component {
     }
 }
 
-const LogoutStackNavigator = createStackNavigator({  
-    LogoutNavigator: Logout
+const LogoutComponent = createStackNavigator({  
+    Logout: Logout
 });
-export default LogoutStackNavigator;
+export default LogoutComponent;

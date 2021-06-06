@@ -207,7 +207,7 @@ class Login extends Component {
     }
 }
 
-const LoginStackNavigator = createStackNavigator({  
-    LoginNavigator: Login 
+const LoginComponent = createStackNavigator({  
+    Login: Login 
 });
-export default LoginStackNavigator;
+export default LoginComponent;
