@@ -44,24 +44,25 @@ const data_limit = distance * chart_col;
 
 class Dashboard extends Component{
     static navigationOptions = ({ navigation }) => {  
-            return {  
-                title: 'Trang chủ',
-                headerLeft: (  
-                    <Icon  
-                        style={{ paddingLeft: 10 }}  
-                        onPress={() => navigation.openDrawer()}  
-                        name="md-menu"  
-                        size={30}  
-                    />  
-                )  
-            };   
+        return {  
+            title: 'Trang chủ',
+            headerLeft: (  
+                <Icon  
+                    style={{ paddingLeft: 10 }}  
+                    onPress={() => navigation.openDrawer()}  
+                    name="md-menu"  
+                    size={30}  
+                />  
+            )  
+        };   
     };
     constructor(props) {
         super(props);
         this.state = {
-            valve : 'ON',
-            fan: 'OFF',
-            pump: 'OFF',
+            token : null, 
+            valve : 'ĐÓNG',
+            fan: 'TẮT',
+            pump: 'TẮT',
             temp: '0',
             warning: false,
             data: {
@@ -86,22 +87,22 @@ class Dashboard extends Component{
             }
         }
 
-        this.turnOnHandler = this.turnOnHandler.bind(this);
-        this.turnOffHandler = this.turnOffHandler.bind(this);
+        // this.turnOnHandler = this.turnOnHandler.bind(this);
+        // this.turnOffHandler = this.turnOffHandler.bind(this);
         this.subscribeTopics = this.subscribeTopics.bind(this);
         this.updateObjects = this.updateObjects.bind(this);
 
-        this.mqtt = new MQTT();
-        this.mqtt.ConnectSuccessAction = () => {
-            this.subscribeTopics();
-        }
-        this.mqtt.SetResponseFunction = (message) => {
-            console.log("Changing state of ", message.destinationName);
-            console.log("see value:  ", JSON.parse(message.payloadString).data);
-            let val = JSON.parse(message.payloadString).data
-            this.updateObjects(message.destinationName, val);
-        }
-        this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
+        // this.mqtt = new MQTT();
+        // this.mqtt.ConnectSuccessAction = () => {
+        //     this.subscribeTopics();
+        // }
+        // this.mqtt.SetResponseFunction = (message) => {
+        //     console.log("Changing state of ", message.destinationName);
+        //     console.log("see value:  ", JSON.parse(message.payloadString).data);
+        //     let val = JSON.parse(message.payloadString).data
+        //     this.updateObjects(message.destinationName, val);
+        // }
+        // this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
         this.getInitChartData();
     }
     // main object update
@@ -209,16 +210,79 @@ class Dashboard extends Component{
         });
     }
     
-    turnOnHandler() {
+    turnOnHandler = async () => {
+        // Topics.forEach(({ name, jsonobj, on }) => {
+        //     this.mqtt.send(name, JSON.stringify(jsonobj(on)));
+        // });
+        if (this.state.token == null) {
+            this.setState({token: await AsyncStorage.getItem('id_token').then(value => value)});
+        }
+
+        console.log("Turning on alarm");
+
         
-        Topics.forEach(({ name, jsonobj, on }) => {
-            this.mqtt.send(name, JSON.stringify(jsonobj(on)));
+        return fetch(`https://mysterious-reaches-12750.herokuapp.com/api/alarm/turn-on`, { 
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: this.state.token,
+            })
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            // this.setState({checkReg:responseJson.success});
+            if (responseJson.status=="success"){
+                console.warn(responseJson);
+                Alert.alert("Thông báo!","Báo động đã được bật!");
+            }
+            else{
+                console.warn(responseJson);
+                Alert.alert("Thông báo!",responseJson.message);
+            }
+        })
+        .catch((error) =>{
+            console.error(error);
         });
     }
     
-    turnOffHandler() {
-        Topics.forEach(({ name, jsonobj, off }) => {
-            this.mqtt.send(name, JSON.stringify(jsonobj(off)));
+    turnOffHandler = async () => {
+        // Topics.forEach(({ name, jsonobj, off }) => {
+        //     this.mqtt.send(name, JSON.stringify(jsonobj(off)));
+        // });
+        if (this.state.token == null) {
+            this.setState({token: await AsyncStorage.getItem('id_token').then(value => value)});
+        }
+        
+        console.log("Turning off alarm");
+
+        
+        return fetch(`https://mysterious-reaches-12750.herokuapp.com/api/alarm/turn-off`, { 
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: this.state.token,
+            })
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            // this.setState({checkReg:responseJson.success});
+            if (responseJson.status=="success"){
+                console.warn(responseJson);
+                Alert.alert("Thông báo!","Báo động đã tắt!");
+            }
+            else{
+                console.warn(responseJson);
+                Alert.alert("Thông báo!",responseJson.message);
+            }
+        })
+        .catch((error) =>{
+            console.error(error);
         });
     }
 

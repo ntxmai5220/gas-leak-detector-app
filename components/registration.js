@@ -38,46 +38,51 @@ class Registration extends Component{
       fullname:"",
     }
   };
-  _onSubmit=()=>{
-    //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-    return fetch('http://192.168.43.123:3000/signup', { 
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: this.state.fullname,
-        password: this.state.password,
-        email:this.state.email,
-        passwordConfirm:this.state.passwordConfirm
-      })
-    })
-    .then((response) => response.json())
-    .then((responseJson) => {
-        // this.setState({checkReg:responseJson.success});
-        if (responseJson.status=="success"){
-            console.warn(responseJson);
-            Alert.alert("Thông báo!","Bạn đã đăng ký thành công!");
-            this._onValueChange(STORAGE_KEY,responseJson.token)
-            this.props.navigation.navigate('Login');
-        }
-        else{
-           // console.warn(responseJson);
-            Alert.alert("Thông báo!",responseJson.message)
-        }
-    })
-    .catch((error) =>{
-        console.error(error);
-    });
-  }
-  async _onValueChange(item, selectedValue) {
-    try {
-      await AsyncStorage.setItem(item, selectedValue);
-    } catch (error) {
-      console.log('AsyncStorage error: ' + error.message);
-    }
-  }
+	_onSubmit=()=>{
+		//Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
+		if (this.state.password != this.state.passwordConfirm) {
+			Alert.alert("Thông báo!", "Mật khẩu và xác nhận không khớp nhau!");
+			return null;
+		} else {
+			return fetch('https://mysterious-reaches-12750.herokuapp.com/api/users/signup', { 
+				method: 'POST',
+				headers: {
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					name: this.state.fullname,
+					password: this.state.password,
+					email:this.state.email,
+					// passwordConfirm:this.state.passwordConfirm
+				})
+			})
+			.then((response) => response.json())
+			.then((responseJson) => {
+				// this.setState({checkReg:responseJson.success});
+				if (responseJson.status=="success"){
+					console.warn(responseJson);
+					Alert.alert("Thông báo!","Bạn đã đăng ký thành công!");
+					this._onValueChange(STORAGE_KEY,responseJson.token)
+					this.props.navigation.navigate('Dashboard');
+				}
+				else{
+				// console.warn(responseJson);
+					Alert.alert("Thông báo!",responseJson.message)
+				}
+			})
+			.catch((error) =>{
+				console.error(error);
+			});
+		}
+	}
+	async _onValueChange(item, selectedValue) {
+		try {
+		await AsyncStorage.setItem(item, selectedValue);
+		} catch (error) {
+		console.log('AsyncStorage error: ' + error.message);
+		}
+	}
 //   async _getProtectedQuote() {
 //     var DEMO_TOKEN = await AsyncStorage.getItem(STORAGE_KEY);
 //     fetch("http://localhost:3001/api/protected/random-quote", {
@@ -135,40 +140,40 @@ class Registration extends Component{
 // }
   render() {
     return (
-      <ImageBackground source={require('../assets/brReg.jpg')} style={styless.image}>
-         
-      <View style={styless.container}>
-      <Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
-      <View style ={{flex:4}}>
-        <Text style={{fontSize:20,color:'white',fontWeight: "bold"}}>Thông tin tài khoản</Text>
-        <TextInput placeholder="Họ tên"
-           placeholderTextColor={colors.main_blue}
-           underlineColorAndroid="transparent"
-           style={styless.txtInput}  onChangeText={(fullname) => this.setState({fullname:fullname})}/>
-        <TextInput placeholder="Email"
-           placeholderTextColor={colors.main_blue}
-           underlineColorAndroid="transparent"
-           style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}/>
-        <TextInput placeholder="Mật khẩu"
-            underlineColorAndroid="transparent"
-            placeholderTextColor={colors.main_blue}
-            secureTextEntry={true}
-            style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
-          <TextInput placeholder="Xác nhận mật khẩu"
-           placeholderTextColor={colors.main_blue}
-           underlineColorAndroid="transparent"
-           style={styless.txtInput}  onChangeText={(passwordConfirm) => this.setState({passwordConfirm:passwordConfirm})}/>
-        <TouchableOpacity onPress={this._onSubmit} style={styless.btnReg}>
-            <Text style={styless.txtReg}>Đăng ký</Text>
-        </TouchableOpacity>
-        </View>
-        <View style={{flex:1}}>
-        <Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Đăng nhập</Text>
-        {/* <Button title="Go to Home"/> */}
-        {/* <HomeScreen /> */}
-      </View>
-      </View>
-      </ImageBackground>
+		<ImageBackground source={require('../assets/brReg.jpg')} style={styless.image}>
+			
+		<View style={styless.container}>
+			<Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
+			<View style ={{flex:4}}>
+				<Text style={{fontSize:20,color:'white',fontWeight: "bold"}}>Thông tin tài khoản</Text>
+				<TextInput placeholder="Họ tên"
+				placeholderTextColor={colors.main_blue}
+				underlineColorAndroid="transparent"
+				style={styless.txtInput}  onChangeText={(fullname) => this.setState({fullname:fullname})}/>
+				<TextInput placeholder="Email"
+				placeholderTextColor={colors.main_blue}
+				underlineColorAndroid="transparent"
+				style={styless.txtInput}  onChangeText={(email) => this.setState({email:email})}/>
+				<TextInput placeholder="Mật khẩu"
+					underlineColorAndroid="transparent"
+					placeholderTextColor={colors.main_blue}
+					secureTextEntry={true}
+					style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
+				<TextInput placeholder="Xác nhận mật khẩu"
+				placeholderTextColor={colors.main_blue}
+				underlineColorAndroid="transparent"
+				style={styless.txtInput}  onChangeText={(passwordConfirm) => this.setState({passwordConfirm:passwordConfirm})}/>
+				<TouchableOpacity onPress={this._onSubmit} style={styless.btnReg}>
+					<Text style={styless.txtReg}>Đăng ký</Text>
+				</TouchableOpacity>
+				</View>
+				<View style={{flex:1}}>
+				<Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Đăng nhập</Text>
+				{/* <Button title="Go to Home"/> */}
+				{/* <HomeScreen /> */}
+			</View>
+		</View>
+		</ImageBackground>
     );
   }
 }
