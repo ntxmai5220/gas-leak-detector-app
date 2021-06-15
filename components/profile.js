@@ -25,8 +25,8 @@ class Profile extends Component{
    constructor(props) {
     super(props);
     this.state = {
-      tableHead: ['ID', 'Tên', 'Thời gian', 'Trạng thái'],
-      widthArr: [50,200,100,100],
+      tableHead: ['STT', 'Tên thiết bị'],
+      widthArr: [50,300],
       name:"",
       email:""
     }
@@ -46,10 +46,10 @@ class Profile extends Component{
 render(){
     const state = this.state;
     const data = [];
-      data.push(['1','Gas sensor',(new Date()).getDate(),'on']);
-      data.push(['2','Temperature sensor',(new Date()).getDate(),'on']);
-      data.push(['3','Pump',(new Date()).getDate(),'off']);
-      data.push(['4','Fan',(new Date()).getDate(),'on']);
+      data.push(['1','Cảm biến nồng độ khí gas']);
+      data.push(['2','Cảm biến nhiệt độ']);
+      data.push(['3','Động cơ quạt']);
+      data.push(['4','Máy bơm nước']);
       // console.log(data);
       AsyncStorage.getItem("fullname").then((name)=>{
         this.setState({name:name})
