@@ -31,20 +31,10 @@ class Profile extends Component{
       name:"",
       email:""
     }
+    this.setInfo();
   
   }
-  // _retrieveData = async (topic) => {
-  //   try {
-  //     const value = await AsyncStorage.getItem(topic);
-  //     if (value !== null) {
-  //       // We have data!!
-  //       console.log(value)
-  //       this.setstate.name=value ;
-  //     }
-  //   } catch (error) {
-  //     // Error retrieving data
-  //   }
-  // };
+  
   setInfo=async ()=>{
       this.setState({name: await AsyncStorage.getItem('fullname').then(value => value)});
       this.setState({email:  await AsyncStorage.getItem('email').then(value => value)});
@@ -64,7 +54,7 @@ render(){
       // AsyncStorage.getItem("email").then((email)=>{
       //   this.setState({email:email})
       // });
-     this.setInfo();
+    //  this.setInfo();
     return (
            <View style={{flex:1}}>
                <View style={{flex:0.2}}></View>
