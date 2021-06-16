@@ -1,12 +1,13 @@
 import React, { Component } from 'react';  
-//mport { View, Text, StyleSheet, Button } from 'react-native';  
-import {Platform, StyleSheet, Text,Alert, View,TouchableOpacity,TextInput,Image,Dimensions,Button,ScrollView,AsyncStorage} from '../node_modules/react-native'; 
+//mport{ View, Text, StyleSheet, Button } from 'react-native';  
+import { StyleSheet, Text, View,Image,ScrollView} from 'react-native'; 
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { createStackNavigator } from 'react-navigation-stack';
-import { Table, TableWrapper, Row } from 'react-native-table-component';
-import { createDrawerNavigator } from 'react-navigation-drawer';
+import { Table, Row } from 'react-native-table-component';
+// import { createDrawerNavigator } from 'react-navigation-drawer';
 import Icon from 'react-native-vector-icons/Ionicons'; 
 import colors from '../assets/colors'
+import {AsyncStorage} from '../node_modules/react-native';
 
 class Profile extends Component{
     static navigationOptions = ({ navigation }) => {  
@@ -30,6 +31,7 @@ class Profile extends Component{
       name:"",
       email:""
     }
+  
   }
   // _retrieveData = async (topic) => {
   //   try {
@@ -43,39 +45,40 @@ class Profile extends Component{
   //     // Error retrieving data
   //   }
   // };
+  setInfo=async ()=>{
+      this.setState({name: await AsyncStorage.getItem('fullname').then(value => value)});
+      this.setState({email:  await AsyncStorage.getItem('email').then(value => value)});
+  }
 render(){
-    const state = this.state;
+    //const state = this.state;
     const data = [];
       data.push(['1','Cảm biến nồng độ khí gas']);
       data.push(['2','Cảm biến nhiệt độ']);
       data.push(['3','Động cơ quạt']);
       data.push(['4','Máy bơm nước']);
       // console.log(data);
-      AsyncStorage.getItem("fullname").then((name)=>{
-        this.setState({name:name})
-      });
-      AsyncStorage.getItem("email").then((email)=>{
-        this.setState({email:email})
-      });
+      
+      // AsyncStorage.getItem("fullname").then((name)=>{
+      //   this.setState({name:name})
+      // });
+      // AsyncStorage.getItem("email").then((email)=>{
+      //   this.setState({email:email})
+      // });
+     this.setInfo();
     return (
            <View style={{flex:1}}>
                <View style={{flex:0.2}}></View>
                <Text style={{flex:1,fontSize:25,fontWeight:'bold'}}> {this.state.name}</Text>
             <Image source={require('../assets/person-icon.png')} style={style.image_icon}></Image>
             <View style={{flex:0.5}}></View>
-            
             <Text style={style.padd_text}>Email: {this.state.email}</Text>
-            {/* <Text style={{flex:1}}>Name</Text> */}
             <View style={{flex:6}}>
             <Text style={{flex:1,fontSize:20}}>Thiết bị</Text>
-            {/* <TouchableOpacity onPress={()=>{this.props.navigation.navigate('Profile')}} style={style.btnLogin}>
-                    <Text style={style.txtLogin}>Add Device</Text>
-                </TouchableOpacity> */}
                 <View style={[styles.container,{flex:8}]}>
         <ScrollView horizontal={true}>
           <View>
             <Table borderStyle={{borderColor: '#C1C0B9'}}>
-              <Row data={state.tableHead} widthArr={state.widthArr} style={styles.head} textStyle={styles.text}/>
+              <Row data={this.state.tableHead} widthArr={this.state.widthArr} style={styles.head} textStyle={styles.text}/>
             </Table>
             <ScrollView style={styles.dataWrapper}>
               <Table borderStyle={{borderColor: '#C1C0B9'}}>
@@ -84,7 +87,7 @@ render(){
                     <Row
                       key={index}
                       data={dataRow}
-                      widthArr={state.widthArr}
+                      widthArr={this.state.widthArr}
                       style={[styles.row, index%2 && {backgroundColor: '#ffffff'}]}
                       textStyle={styles.text}
                     />

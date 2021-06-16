@@ -229,6 +229,8 @@ class Dashboard extends Component{
             },
             body: JSON.stringify({
                 token: this.state.token,
+                gas:1,
+                temperature:this.state.temp
             })
         })
         .then((response) => response.json())
