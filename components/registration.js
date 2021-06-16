@@ -160,7 +160,8 @@ class Registration extends Component{
 					secureTextEntry={true}
 					style={styless.txtInput}  onChangeText={(password) => this.setState({password:password})}/>
 				<TextInput placeholder="Xác nhận mật khẩu"
-				placeholderTextColor={colors.main_blue}
+				placeholderTextColor={colors.main_blue} 
+        secureTextEntry={true}
 				underlineColorAndroid="transparent"
 				style={styless.txtInput}  onChangeText={(passwordConfirm) => this.setState({passwordConfirm:passwordConfirm})}/>
 				<TouchableOpacity onPress={this._onSubmit} style={styless.btnReg}>
