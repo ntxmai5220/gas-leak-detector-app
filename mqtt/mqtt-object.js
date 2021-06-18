@@ -30,11 +30,11 @@ export default class MQTT {
         this.RETAIN = true;
         this.debug = debug;
 
-        this.connect.bind(this);
-        this.subscribeTopic.bind(this);
-        this.unsubscribeTopic.bind(this);
-        this.send.bind(this);
-        this.close.bind(this);
+        this.connect = this.connect.bind(this);
+        this.subscribeTopic = this.subscribeTopic.bind(this);
+        this.unsubscribeTopic = this.unsubscribeTopic.bind(this);
+        this.send = this.send.bind(this);
+        this.close = this.close.bind(this);
     }
 
     connect(host, port, usr, pass) {

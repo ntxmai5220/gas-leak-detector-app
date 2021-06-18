@@ -111,7 +111,9 @@ class Login extends Component {
       //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
       //console.log(this.state.password)
       // const loginlink = 'http://192.168.43.123:3000/login';
+      console.log("Login to web server...");
       const loginlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/login';
+
       return fetch(loginlink, { 
         method: 'POST',
         headers: {
