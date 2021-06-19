@@ -1,8 +1,9 @@
 // export const USER = {
 //     host: 'io.adafruit.com',
 //     port: 80,
-//     userName: 'johnwick123',
-//     password: 'aio_QyaX72AdGUl5iv1ns4PdnufBGN7H',
+//     userName: 'johnwick123456',
+//     password: 'aio_PllJ02ZP2jCbJg85G1kv08XM7niP',
+//     suffix: `bk`
 // }
 // export const USER = {
 //     host: 'io.adafruit.com',
@@ -16,13 +17,7 @@ export const USER = {
     port: 80,
     userName: 'navcul3108',
     password: 'aio_efhI17dXi8i3ZtaHW94rXiLzFTjq',
-}
-export const DefaultConnectOptions = {
-    reconnect: false,
-    cleanSession: true,
-    mqttVersion: 3,
-    keepAliveInterval: 60,
-    timeout: 60
+    suffix: `kkllm`
 }
 
 export const ConnectSetting = {
@@ -30,6 +25,7 @@ export const ConnectSetting = {
     RETAIN: true,
 };
 
+// didnt use this
 export const Topics = [{
         //johnwick123456
         name: `${USER.userName}/feeds/kkllm-iot-relay`,
@@ -120,28 +116,51 @@ export const Topics = [{
 ];
 
 export const Subscribe_Topics = [{
-        //johnwick123456
-        name: `${USER.userName}/feeds/kkllm-iot-relay`,
+        name: `${USER.userName}/feeds/${USER.suffix}-iot-relay`,
         thing: 'relay',
+        feed: `${USER.suffix}-iot-relay`
     },{
-        name: `${USER.userName}/feeds/kkllm-iot-temp-humid`,
+        name: `${USER.userName}/feeds/${USER.suffix}-iot-temp-humid`,
         thing: 'temp',
+        feed: `${USER.suffix}-iot-temp-humid`
     },{
-        name: `${USER.userName}/feeds/kkllm-iot-gas`,
+        name: `${USER.userName}/feeds/${USER.suffix}-iot-gas`,
         thing: 'gas',
+        feed: `${USER.suffix}-iot-gas`
     },
-    // {
-    //     name: 'navcul3108/feeds/kkllm-iot-relay',
-    //     thing:'kkllm-iot-relay'
-    // }
-    // {
-    //     name: 'johnwick123/feeds/fan',
-    //     thing: 'fan',
-    // },{
-    //     name: 'johnwick123/feeds/pump',
-    //     thing: 'pump',
-    // },{
-    //     name: 'johnwick123/feeds/valve',
-    //     thing: 'valve',
-    // },
 ];
+
+export const getAdafruitFetch = (topicThingName, fetchNumber) => {
+
+    console.log("THIS FUNC HAS BEEN CALLED!");
+
+    var foundTopic = null;
+
+    Subscribe_Topics.forEach(element => {
+        if (element.thing == topicThingName) {
+            console.log("Found topic!");
+            foundTopic = element;
+
+        }
+    });
+
+    if (foundTopic) {
+        return fetch(`https://io.adafruit.com/api/v2/${USER.userName}/feeds/${foundTopic.feed}/data?limit=${fetchNumber}`, {
+            method: 'GET',
+            headers: {
+                'X-AIO-Key': USER.password
+            }
+            })
+            .then(response => response.json())
+            // .then(function(response) {
+            //     executeFunction(response)
+            // })
+            .catch(function (err) {
+                console.log(`Error fetching ${topicThingName}!`);
+                console.log(err);
+            })
+    }
+    else {
+        return Promise.reject(new Error(`No ${topicThingName} record available!`));
+    }
+}  

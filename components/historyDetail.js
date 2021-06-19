@@ -9,100 +9,55 @@ import {
   LineChart
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-/*
-  TODO:
-  1.  Viết hàm get nhiệt theo 3 giờ 1 lần cho chart như mẫu,
-  2.  Viết hàm get nhiệt độ realtime,
-  3.  Viết hàm get trạng thái các thiết bị,
-  4.  Viết hàm báo động.
-  5.  Viết hàm get trạng thái hệ thống đang báo động hay ổn định,
-  6.  Viết hàm cho button Bật/tắt báo động, gửi tín hiệu về cho server điều khiển thiết bị
- */
-
-const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
-const user_name = 'CSE_BBC';
-const feed = 'bk-iot-temp-humid';
+import {AsyncStorage} from "../node_modules/react-native";
 
 
-// const data = {
-//     labels: ['1:00', '4:00', '7:00', '10:00', '13:00', '16:00', '19:00', '22:00', //'17:00', '19:00'
-//     // , '13:00', '15:00', '17:00'
-//     ],
-//         datasets: [{
-//           data: [
-//             29.0,
-//             24.3,
-//             26.0,
-//             28.1,
-//             32.0,
-//             33.4,
-//             35.0,
-//             // 35.5,
-//             // 34.0,
-//             10,
-//             // 30.0,
-//           ]
-//         }]
-// }
-// //chart
-// const CustomChart = () => {
-//     return(
-//         <View>
-        
-//         <LineChart
-//         //segments={5}
-//         data={data}
-//         width={wp('105%')} // from react-native
-//         height={240}
-//         chartConfig={chartConfig}
-//         //fromZero
-//         bezier
-//         //maxValue={45}
-//         style={{alignSelf:"center", marginTop:20}}
-//         //formatYLabel={() => yLabelIterator.next().value}
-//         />
-//         </View>
-//     );
-// };
-    
-// FlatListBasics = () => {
-//   return (
-    
-//   );
-// }
 class HistoryDetailComponent extends Component{
     constructor(props) {  
         super(props);  
-        this.state = {  
-            dataSource: {
-              labels: ['1:00', '4:00', '7:00', '10:00', '13:00', '16:00', '19:00', '22:00', //'17:00', '19:00'
-              // , '13:00', '15:00', '17:00'
-              ],
-              datasets: [{
-                  data: [
-                      29.0,
-                      24.3,
-                      26.0,
-                      28.1,
-                      32.0,
-                      33.4,
-                      35.0,
-                      // 35.5,
-                      // 34.0,
-                      10,
-                      // 30.0,
-                  ]
-              }]
-          },
-
-        };
-
+        
         var dateobj = this.props.navigation.getParam("day", "cant get date");
         var date = new Date(dateobj["timestamp"]);
-        date.setTime( date.getTime() + new Date().getTimezoneOffset()*60*1000 );
+        // date.setTime( date.getTime() + new Date().getTimezoneOffset()*60*1000 );
         console.log(date.toISOString());
 
-        this.gettemp(date);
+        this.state = {  
+            dataSource: {
+                labels: ['1:00', '4:00', '7:00', '10:00', '13:00', '16:00', '19:00', '22:00', //'17:00', '19:00'
+                // , '13:00', '15:00', '17:00'
+                ],
+                datasets: [{
+                    data: [
+                        29.0,
+                        24.3,
+                        26.0,
+                        28.1,
+                        32.0,
+                        33.4,
+                        35.0,
+                        // 35.5,
+                        // 34.0,
+                        10,
+                        // 30.0,
+                    ]
+                }]
+            },
+            alarmDataHistory: [],
+            token: null,
+            today: date,
+        };
+
+        const self = this;
+        AsyncStorage.getItem('id_token').then(value => {
+            self.setState({token: value});
+        })
+
+        // this.gettemp(date);
+    }
+
+    componentDidMount() {
+        this.getTemperatureFromDatabase();
+        this.getAlarm();
     }
 
     static navigationOptions = {  
@@ -110,6 +65,16 @@ class HistoryDetailComponent extends Component{
         
     };
 
+    _getFormattedTime(dateTimeObj) {
+        let hms = dateTimeObj.toTimeString().split(" ")[0];
+        return hms;
+    }
+
+    getTemperatureFromDatabase = async () => {
+        // TODO
+    }
+
+    // UNUSED
     gettemp = async (date) => {
         const self = this;
         
@@ -166,6 +131,59 @@ class HistoryDetailComponent extends Component{
 
     }
 
+    _getAlarmRequest = async () => {
+        return fetch(`https://mysterious-reaches-12750.herokuapp.com/api/alarm/history`, { 
+            method: 'GET',
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + this.state.token,
+				// 'Authorization': this.state.token,
+            }),
+        })
+		.then(response => response.json())
+		.then((res) => {
+			if (res.status == "fail") {
+                console.log("Failed to get history!");
+				console.log(res.message);
+                return Promise.reject(new Error("Lấy báo động từ server thất bại!"));
+			} else {
+				console.log("success");
+                return res;
+				// this.getdayalarm(res, new Date(2021, 5, 14));
+			}
+		})
+		.catch((mess) => {
+			console.log(mess)
+		})
+    }
+    getAlarm = async () => {
+        const self = this;
+
+        self._getAlarmRequest().then(alarmList => {
+
+            var AlarmThisDay = [];
+            // var alarmcount = 1;
+
+            alarmList.reverse().forEach(element => {
+                let historyTime = new Date(element.timestamp);
+
+                // Check if alarm is on the right day
+                if (historyTime.toDateString() === self.state.today.toDateString()) {
+                    console.log("Alarm this day: ", historyTime.toString());
+                    // AlarmThisDay.push({key: `Báo động ${alarmcount}: ` + self._getFormattedTime(historyTime)});
+                    AlarmThisDay.push({key: self._getFormattedTime(historyTime)});
+                    // alarmcount += 1;
+                }
+            });
+
+            self.setState({alarmDataHistory: AlarmThisDay})
+        })
+        .catch(error => {
+            Alert.alert("Thông báo", error);
+        })
+    }
+
     render(){
         var time = this.props.navigation.getParam("day", "cant get date");
 
@@ -206,13 +224,14 @@ class HistoryDetailComponent extends Component{
                 <Text style={styles.title}>BÁO ĐỘNG</Text>
                 <View>
                     <FlatList
-                    data={[
-                        {key: 'time1'},
-                        {key: 'time2'},
-                        {key: 'time3'},
-                        {key: 'time4'},
-                        {key: 'time5'},
-                    ]}
+                    data = {this.state.alarmDataHistory}
+                    // data={[
+                    //     {key: 'time1'},
+                    //     {key: 'time2'},
+                    //     {key: 'time3'},
+                    //     {key: 'time4'},
+                    //     {key: 'time5'},
+                    // ]}
                     renderItem={({item}) => <Text style={styles.txtLst}>{item.key}</Text>}
                     />
                 </View>

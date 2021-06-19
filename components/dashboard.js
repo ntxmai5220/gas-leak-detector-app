@@ -10,7 +10,7 @@ import {
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import { USER, DefaultConnectOptions, ConnectSetting, Topics, Subscribe_Topics } from '../global/user';
+import { USER, Subscribe_Topics, getAdafruitFetch } from '../global/user';
 
 
 import MQTT from '../mqtt/mqtt-object';
@@ -33,9 +33,9 @@ import * as Notifications from 'expo-notifications';
 
 
 
-const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
-const user_name = 'CSE_BBC';
-const feed = 'bk-iot-temp-humid';
+// const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
+// const user_name = 'CSE_BBC';
+// const feed = 'bk-iot-temp-humid';
 const distance = 5;
 const chart_col = 12;
 const data_limit = distance * chart_col;
@@ -59,8 +59,9 @@ class Dashboard extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            token : null, 
-            valve : 'ĐÓNG',
+            token : null,
+            mqtt: null,
+            valve : 'MỞ',
             fan: 'TẮT',
             pump: 'TẮT',
             temp: '0',
@@ -85,62 +86,197 @@ class Dashboard extends Component{
                     ]
                 }]
             }
+
         }
-
-        // this.turnOnHandler = this.turnOnHandler.bind(this);
-        // this.turnOffHandler = this.turnOffHandler.bind(this);
-        this.subscribeTopics = this.subscribeTopics.bind(this);
-        this.updateObjects = this.updateObjects.bind(this);
-
-        // this.mqtt = new MQTT();
-        // this.mqtt.ConnectSuccessAction = () => {
-        //     this.subscribeTopics();
-        // }
-        // this.mqtt.SetResponseFunction = (message) => {
-        //     console.log("Changing state of ", message.destinationName);
-        //     console.log("see value:  ", JSON.parse(message.payloadString).data);
-        //     let val = JSON.parse(message.payloadString).data
-        //     this.updateObjects(message.destinationName, val);
-        // }
-        // this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
-        this.getInitChartData();
     }
+
+    // set states of inner relay dependencies
+    _setInnerRelay = (relay) => {
+        if (relay) {
+            this.setState({valve: 'ĐÓNG', fan: 'BẬT', pump: 'BẬT'});
+        } else {
+            this.setState({valve: 'MỞ', fan: 'TẮT', pump: 'TẮT'});
+        }
+    }
+    _subscribeTopics = (mqtt) => {
+        console.log("Subscribing");
+        Subscribe_Topics.forEach((sub_topic) => {
+            mqtt.subscribeTopic(sub_topic.name);
+        });
+    }
+    _unsubscribeTopics = (mqtt) => {
+        console.log("Unsubscribing");
+        Subscribe_Topics.forEach((sub_topic) => {
+            mqtt.unsubscribeTopic(sub_topic.name);
+        });
+    }
+    
+    componentDidMount() {
+        // mqtt subscribe
+        const mqttobj = new MQTT();
+        mqttobj.ConnectSuccessAction = () => {
+            this._subscribeTopics(mqttobj);
+        }
+        mqttobj.SetResponseFunction = (message) => {
+            console.log("Changing state of ", message.destinationName);
+            console.log("see value:  ", JSON.parse(message.payloadString).data);
+            let val = JSON.parse(message.payloadString).data
+            this.updateObjects(message.destinationName, val);
+        }
+        mqttobj.connect(USER.host, USER.port, USER.userName, USER.password);
+
+        this.setState({mqtt: mqttobj})
+
+        // get init data
+        this.getInitData();
+    }
+    componentWillUnmount() {
+        const mqttobj = this.state.mqtt;
+        if (mqttobj) {
+            this._unsubscribeTopics(mqttobj);
+        }
+    }
+
+
+    // get init data of all
+    getInitData = () => {
+        const self = this;
+
+        // get init temperature
+        getAdafruitFetch('temp', 8).then(jsonobj => {
+            // get first data
+            let t = JSON.parse(jsonobj[0].value).data.split('-')[0];
+            self.setState({temp: t});
+
+            // get 8 data for chart
+            var lb = [];
+            var dt = [];
+
+            var count = 0;
+        
+            jsonobj.forEach(elem => {
+                count += 1;
+                if (true) {
+                    let d = new Date(elem["created_at"]);
+                    lb.push(d.toTimeString().split(" ")[0]);
+                    dt.push(parseInt(JSON.parse(elem["value"])["data"]));
+                }
+        
+            });
+
+            self.setState({
+                data: {
+                    labels: lb.reverse(),
+                    datasets: [{
+                        data: dt.reverse()
+                    }]
+                }
+            })
+
+            console.log("Success getting init temp!");
+
+        })
+        .catch(err => {
+            console.warn(err);
+        })
+
+
+        // get init relay
+        getAdafruitFetch('relay', 1).then(jsonobj => {
+            // get first data
+            let d = JSON.parse(jsonobj[0].value).data;
+            self._setInnerRelay(d == '1');
+
+            console.log("Success getting init relay!");
+
+        })
+        .catch(err => {
+            console.warn(err);
+        })
+
+        
+    }
+
     // main object update
-    updateObjects(destinationName, data) {
-        Subscribe_Topics.forEach(({ name, thing }) => {
+    updateObjects = (destinationName, data) => {
+        Subscribe_Topics.forEach(({ name, thing, feed }) => {
             if (name == destinationName) {
-                if (thing == 'relay') {
-                    if (data == '1') {
-                        this.setState({valve: 'OFF', fan: 'ON', pump: 'ON', warning: true});
-                    } else {
-                        this.setState({valve: 'ON', fan: 'OFF', pump: 'OFF', warning: false});
-                    }    
-                }
-                if (thing == 'temp') {
-                    let t = data.split('-')[0];
-                    this.setState({temp: t});
-                    if (parseFloat(t) > 37) {
-                        // this.setState({ warning: true });
-                        this.turnOnHandler();
-                        this.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
-                    } else {
-                        // this.setState({ warning: false});
-                        this.turnOffHandler();
-                    }
-                }
-                if (thing == 'gas') {
-                    let t = data.split('-')[0];
-                    if (data == '1') {
-                        this.turnOnHandler();
-                        this.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
-                    } else {
-                        this.turnOffHandler();
-                    }
-                }
+                this.subscriberHandler(thing, data);
             }
         });
     }
+    subscriberHandler = (subscribeObject, data) => {
+        const self = this;
 
+        // relay subscriber
+        // ------------------------------------------------------------------------------
+        if (subscribeObject == 'relay') {
+            self._setInnerRelay(data == '1');
+        }
+
+        // temp subscriber
+        // ------------------------------------------------------------------------------
+        if (subscribeObject == 'temp') {
+            let t = data.split('-')[0];
+
+            // update temp number
+            self.setState({temp: t});
+
+            // update chart
+            self._realtimeChartUpdate(parseInt(t));
+
+            // WARNING HANDLE:
+            // TURN ON IF TEMP IS OVER 37
+            // TURN OFF MANUALLY, TEMP DOESNT AFFECT ALARM STATE. 
+            if (parseFloat(t) > 37) {
+                self.turnOnHandler();
+                self.setState({warning: true});
+                self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
+            } else {
+                // self.setState({ warning: false});
+                // self.turnOffHandler();
+            }
+        }
+
+        // gas subscriber
+        // -------------------------------------------------------------------------------
+        if (subscribeObject == 'gas') {
+            if (data == '1') {
+                // self.turnOnHandler();
+                self.setState({warning: true});
+                self.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
+            } else {
+                // self.turnOffHandler();
+            }
+        }
+    }
+    _realtimeChartUpdate = (temp) => {
+        console.log("updating");
+        let db = this.state.data.datasets[0].data;
+        let lb = this.state.data.labels;
+        
+        db = db.slice(1);
+        db.push(temp);
+        
+        const thistime = new Date();
+        console.log(thistime.toTimeString())
+
+        lb = lb.slice(1);
+        lb.push(thistime.toTimeString().split(" ")[0]);
+
+        
+        this.setState({
+            data: {
+                labels: lb,
+                datasets: [{
+                    data: db
+                }]
+            }
+        })
+        console.log("updating");
+    }
+
+    // not used!
     getInitChartData = () => {
 
         const self = this;
@@ -194,6 +330,8 @@ class Dashboard extends Component{
             console.log(err);
         })
     }
+
+
     schedulePushNotification(mess) {
         Notifications.scheduleNotificationAsync({
             content: {
@@ -203,17 +341,15 @@ class Dashboard extends Component{
             trigger: { seconds: 1 },
         });
     }
-    subscribeTopics() {
-        console.log("Subscribing");
-        Subscribe_Topics.forEach((sub_topic) => {
-            this.mqtt.subscribeTopic(sub_topic.name);
-        });
-    }
+
+
     
     turnOnHandler = async () => {
         // Topics.forEach(({ name, jsonobj, on }) => {
         //     this.mqtt.send(name, JSON.stringify(jsonobj(on)));
         // });
+        const self = this;
+
         if (this.state.token == null) {
             this.setState({token: await AsyncStorage.getItem('id_token').then(value => value)});
         }
@@ -237,8 +373,9 @@ class Dashboard extends Component{
         .then((responseJson) => {
             // this.setState({checkReg:responseJson.success});
             if (responseJson.status=="success"){
-                console.warn(responseJson);
+                console.log("turn on json: ", responseJson);
                 Alert.alert("Thông báo!","Báo động đã được bật!");
+                self.setState({warning: true});
             }
             else{
                 console.warn(responseJson);
@@ -254,6 +391,8 @@ class Dashboard extends Component{
         // Topics.forEach(({ name, jsonobj, off }) => {
         //     this.mqtt.send(name, JSON.stringify(jsonobj(off)));
         // });
+        const self = this;
+
         if (this.state.token == null) {
             this.setState({token: await AsyncStorage.getItem('id_token').then(value => value)});
         }
@@ -275,8 +414,9 @@ class Dashboard extends Component{
         .then((responseJson) => {
             // this.setState({checkReg:responseJson.success});
             if (responseJson.status=="success"){
-                console.warn(responseJson);
+                console.log("turn off json: ",responseJson);
                 Alert.alert("Thông báo!","Báo động đã tắt!");
+                self.setState({warning: false});
             }
             else{
                 console.warn(responseJson);
@@ -324,6 +464,7 @@ class Dashboard extends Component{
             <View>
                 <LineChart
                     //segments={5}
+                    verticalLabelRotation={55}
                     data={this.state.data}
                     width={wp('105%')} // from react-native
                     height={240}
