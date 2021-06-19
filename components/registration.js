@@ -18,6 +18,7 @@ import {Platform,
 //var {AsyncStorage} =ReactNative
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 //import { useFonts } from 'expo-font';
 import colors from '../assets/colors'
 var STORAGE_KEY = 'id_token';
@@ -143,8 +144,8 @@ class Registration extends Component{
 		<ImageBackground source={require('../assets/brReg.jpg')} style={styless.image}>
 			
 		<View style={styless.container}>
-			<Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center'}}/>
-			<View style ={{flex:4}}>
+			<Image source={require('../assets/logo1.png')} style={{flex:2, alignSelf:'center', position:'relative', top:hp('5%'),}}/>
+			<View style ={{flex:5, position:'relative', top:hp('7%'),}}>
 				<Text style={{fontSize:20,color:'white',fontWeight: "bold"}}>Thông tin tài khoản</Text>
 				<TextInput placeholder="Họ tên"
 				placeholderTextColor={colors.main_blue}
@@ -167,12 +168,8 @@ class Registration extends Component{
 				<TouchableOpacity onPress={this._onSubmit} style={styless.btnReg}>
 					<Text style={styless.txtReg}>Đăng ký</Text>
 				</TouchableOpacity>
+        <Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Đăng nhập</Text>
 				</View>
-				<View style={{flex:1}}>
-				<Text style={styless.txtLogin} onPress={() => this.props.navigation.navigate('Login')}>Đăng nhập</Text>
-				{/* <Button title="Go to Home"/> */}
-				{/* <HomeScreen /> */}
-			</View>
 		</View>
 		</ImageBackground>
     );
@@ -201,7 +198,7 @@ const styless = StyleSheet.create({
   },
   txtInput:{
     backgroundColor: colors.white,
-    width: DEVICE_WIDTH - 60,
+    width: wp('87%'),
     height: 50,
 
     borderRadius:30,
@@ -230,7 +227,7 @@ const styless = StyleSheet.create({
     //  padding:8,
     //  borderRadius: 20,
     //  marginTop:2
-    width: 182,
+    width: wp('50%'),
     height:50,
     backgroundColor:colors.main_blue,
     borderRadius:30,
@@ -260,10 +257,10 @@ const styless = StyleSheet.create({
   txtLogin:{
     fontSize:16,
     color:colors.white,
-    position:'absolute',
-    // top:DEVICE_HEIGHT - 20,
-    alignItems: "center"
-    
+    position:'relative',
+    top:hp('5%'),
+    alignSelf: 'center',
+    alignItems: "center",
   }
   
 });

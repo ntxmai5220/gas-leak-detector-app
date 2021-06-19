@@ -2,17 +2,17 @@ import React, { Component } from 'react';
 //mport { View, Text, StyleSheet, Button } from 'react-native';  
 import colors from '../assets/colors'
 import {
+  ToastAndroid,
   Platform,
   StyleSheet,
   Text,
-  Alert,
   View,
   TouchableOpacity,
   TextInput,
   Image,
-  Dimensions,
   Button,
-  ImageBackground,AsyncStorage
+  ImageBackground,
+  AsyncStorage
 } from '../node_modules/react-native'; 
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
@@ -33,7 +33,7 @@ const styless = StyleSheet.create({
   },
   txtInput:{
     backgroundColor: colors.white,
-    width: wp('90%'),
+    width: wp('87%'),
     height: 50,
 
     borderRadius:30,
@@ -93,77 +93,84 @@ const styless = StyleSheet.create({
   }, 
 });
 var STORAGE_KEY = 'id_token';
-
+const showToastWithGravityAndOffset = (message,x,y) => {
+    ToastAndroid.showWithGravityAndOffset(
+        message,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+        x,
+        y);
+    };
 class Login extends Component {  
     static navigationOptions = {  
-         title: '',  
-         headerShown:false,
+        title: '',  
+        headerShown:false,
     };  
     constructor(props){
-      super(props);
-      this.state={
-        username:"",
-        password:"",
-        checkLogin:0
-      }
+        super(props);
+        this.state={
+            username:"",
+            password:"",
+            checkLogin:0
+        }
     }
     _onSubmit=()=>{
-      //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-      //console.log(this.state.password)
-      // const loginlink = 'http://192.168.43.123:3000/login';
-      const loginlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/login';
-      return fetch(loginlink, { 
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email:this.state.email,
-          password: this.state.password,
+        //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
+        //console.log(this.state.password)
+        // const loginlink = 'http://192.168.43.123:3000/login';
+        const loginlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/login';
+        return fetch(loginlink, { 
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email:this.state.email,
+                password: this.state.password,
+            })
         })
-      })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.warn(responseJson);
-        if (responseJson.status=="success"){
-              console.warn(responseJson);
-              Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
-              this._onValueChange(STORAGE_KEY,responseJson.token);
-              this._onValueChange("fullname",responseJson.data.name)
-              this._onValueChange("email",responseJson.data.email)
-              this._retrieveData(STORAGE_KEY);
-              
-              console.log(responseJson.data.name);
-              this.props.navigation.navigate('Dashboard')
-          }
-          else{
-             // console.warn(responseJson);
-              Alert.alert("Thông báo!",responseJson.message);
-          }
-      })
-      .catch((error) =>{
-          console.error(error);
-      });
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.warn(responseJson);
+            if (responseJson.status=="success"){
+                console.warn(responseJson);
+                showToastWithGravityAndOffset('Hi, '+ responseJson.data.name +"\nBạn đã đăng nhập thành công!", 0, 0);
+                this._onValueChange(STORAGE_KEY,responseJson.token);
+                this._onValueChange("fullname",responseJson.data.name)
+                this._onValueChange("email",responseJson.data.email)
+                this._retrieveData(STORAGE_KEY);
+                console.log(responseJson.data.name);
+                this.props.navigation.navigate('Dashboard')
+            }
+            else{
+                // console.warn(responseJson);
+                showToastWithGravityAndOffset(responseJson.message, 0, -100);
+                //Alert.alert("Thông báo!",responseJson.message);
+            }
+        })
+        .catch((error) =>{
+            console.error(error);
+        });
     }
     async _onValueChange(item, selectedValue) {
-      try {
-        await AsyncStorage.setItem(item, selectedValue);
-        
-      } catch (error) {
-        console.log('AsyncStorage error: ' + error.message);
-      }
+        try {
+            await AsyncStorage.setItem(item, selectedValue);
+          
+        } catch (error) {
+            console.log('AsyncStorage error: ' + error.message);
+        }
     }
     _retrieveData = async (topic) => {
-      try {
-        const value = await AsyncStorage.getItem(topic);
-        if (value !== null) {
-          // We have data!!
-          console.log(value);
+        try {
+            const value = await AsyncStorage.getItem(topic);
+            if (value !== null) {
+                // We have data!!
+                console.log(value);
+            }
+        } catch (error) {
+            // Error retrieving data
         }
-      } catch (error) {
-        // Error retrieving data
-      }
     };
     render() {  
         return ( 

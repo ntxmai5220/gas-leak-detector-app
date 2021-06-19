@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect, useRef }  from 'react';
-import { StyleSheet, Text, Image, View, ScrollView, SafeAreaView, useWindowDimensions } from 'react-native';
+import {ToastAndroid, Alert, Image, View, ScrollView, SafeAreaView, useWindowDimensions, AsyncStorage } from 'react-native';
 import LoginComponent from './components/login';
-import LogoutComponent from './components/logout';
+import LogoutComponents from './components/logout';
 import RegistrationComponent from './components/registration';
 import ProfileComponent from './components/profile';
 import HistoryComponent from './components/history';
@@ -18,7 +18,7 @@ import { createDrawerNavigator, DrawerItems} from 'react-navigation-drawer';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-
+import colors from './assets/colors';
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -26,7 +26,7 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
-
+var STORAGE_KEY = 'id_token';
 export default function App() {
     const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState(false);
@@ -54,7 +54,15 @@ export default function App() {
       <AppContainer/>
     );
 }
-
+const showToastWithGravityAndOffset = (message,x,y) => {
+    ToastAndroid.showWithGravityAndOffset(
+      message,
+      ToastAndroid.SHORT,
+      ToastAndroid.CENTER,
+      x,
+      y
+    );
+  };
 const AppDrawerNavigator = createDrawerNavigator({ 
     Login: {  
         screen: LoginComponent  ,
@@ -70,7 +78,54 @@ const Custom_AppDrawerNavigator1=(props)=>(
         <Image source={require('./assets/logo.png')} style={{height:wp('35%'),width:wp('35%'),alignSelf:'center'}}/>
         </View>
         <ScrollView>
-        <DrawerItems {...props}/>
+        <DrawerItems {...props}
+          onItemPress={(route)=>{
+            if(route.routeName===route.Logout){
+              Alert.alert(
+                "Bạn muốn đăng xuất?","",
+                [{
+                    text: "Cancel",
+                    onPress: () => {console.log('Cancel');},
+                    style: "cancel"
+                  },{ 
+                    text: "OK", onPress: async ()=>{
+                    const logoutlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/logout';
+                    let t = await AsyncStorage.getItem(STORAGE_KEY).then(value => value);
+                    return fetch(logoutlink, { 
+                      method: 'POST',
+                      headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        token: t
+                      }),
+                    })
+                    .then((response) => response.json())
+                    .then((responseJson) => {
+                      console.warn(responseJson);
+                      if (responseJson.status=="success"){
+                        console.warn(responseJson);
+                        //Alert.alert("Thông báo!","Bạn đã đăng xuất thành công!");
+                        console.log(responseJson.message);
+                        props.navigation.navigate('Login');
+                        showToastWithGravityAndOffset("Bạn đã đăng xuất thành công!",0,-100);
+                      }
+                      else{
+                        // console.warn(responseJson);
+                        showToastWithGravityAndOffset("Đăng xuất thất bại!",0,-100);
+                        //Alert.alert("Đăng xuất thất bại!",responseJson.message);
+                      }
+                    })
+                    .catch((error) =>{
+                        console.error(error);
+                    });
+                  }
+                }]
+              );
+              console.log('press logout')
+            }
+          }}/>
         </ScrollView>
     </SafeAreaView>
 );
@@ -93,12 +148,12 @@ const AppDrawerNavigator1 = createDrawerNavigator({
           }),
         screen: ProfileComponent
     },
-    Logout:{
+    Logout: {  
         navigationOptions: () => ({
             title: 'Đăng xuất',
           }),
-        screen: LogoutComponent 
-    }
+        screen: LogoutComponents
+    },
 },{
   initialRouteName:'Dashboard',
   contentComponent:Custom_AppDrawerNavigator1,   
@@ -110,7 +165,6 @@ const AppSwitchNavigator = createSwitchNavigator({
         screen: AppDrawerNavigator1
     },
 }); 
-
 
 async function registerForPushNotificationsAsync() {
   let token;
