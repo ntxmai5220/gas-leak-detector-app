@@ -10,7 +10,7 @@ import {
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import { USER, DefaultConnectOptions, ConnectSetting, Topics, Subscribe_Topics, getAdafruitFetch } from '../global/user';
+import { USER, Subscribe_Topics, getAdafruitFetch } from '../global/user';
 
 
 import MQTT from '../mqtt/mqtt-object';
@@ -33,9 +33,9 @@ import * as Notifications from 'expo-notifications';
 
 
 
-const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
-const user_name = 'CSE_BBC';
-const feed = 'bk-iot-temp-humid';
+// const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
+// const user_name = 'CSE_BBC';
+// const feed = 'bk-iot-temp-humid';
 const distance = 5;
 const chart_col = 12;
 const data_limit = distance * chart_col;
@@ -59,7 +59,8 @@ class Dashboard extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            token : null, 
+            token : null,
+            mqtt: null,
             valve : 'MỞ',
             fan: 'TẮT',
             pump: 'TẮT',
@@ -85,20 +86,8 @@ class Dashboard extends Component{
                     ]
                 }]
             }
-        }
 
-        this.mqtt = new MQTT();
-        this.mqtt.ConnectSuccessAction = () => {
-            this._subscribeTopics();
         }
-        this.mqtt.SetResponseFunction = (message) => {
-            console.log("Changing state of ", message.destinationName);
-            console.log("see value:  ", JSON.parse(message.payloadString).data);
-            let val = JSON.parse(message.payloadString).data
-            this.updateObjects(message.destinationName, val);
-        }
-        this.mqtt.connect(USER.host, USER.port, USER.userName, USER.password);
-        // this.getInitChartData();
     }
 
     // set states of inner relay dependencies
@@ -109,16 +98,46 @@ class Dashboard extends Component{
             this.setState({valve: 'MỞ', fan: 'TẮT', pump: 'TẮT'});
         }
     }
-    _subscribeTopics = () => {
+    _subscribeTopics = (mqtt) => {
         console.log("Subscribing");
         Subscribe_Topics.forEach((sub_topic) => {
-            this.mqtt.subscribeTopic(sub_topic.name);
+            mqtt.subscribeTopic(sub_topic.name);
+        });
+    }
+    _unsubscribeTopics = (mqtt) => {
+        console.log("Unsubscribing");
+        Subscribe_Topics.forEach((sub_topic) => {
+            mqtt.unsubscribeTopic(sub_topic.name);
         });
     }
     
     componentDidMount() {
+        // mqtt subscribe
+        const mqttobj = new MQTT();
+        mqttobj.ConnectSuccessAction = () => {
+            this._subscribeTopics(mqttobj);
+        }
+        mqttobj.SetResponseFunction = (message) => {
+            console.log("Changing state of ", message.destinationName);
+            console.log("see value:  ", JSON.parse(message.payloadString).data);
+            let val = JSON.parse(message.payloadString).data
+            this.updateObjects(message.destinationName, val);
+        }
+        mqttobj.connect(USER.host, USER.port, USER.userName, USER.password);
+
+        this.setState({mqtt: mqttobj})
+
+        // get init data
         this.getInitData();
     }
+    componentWillUnmount() {
+        const mqttobj = this.state.mqtt;
+        if (mqttobj) {
+            this._unsubscribeTopics(mqttobj);
+        }
+    }
+
+
     // get init data of all
     getInitData = () => {
         const self = this;

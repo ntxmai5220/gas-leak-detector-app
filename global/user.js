@@ -19,19 +19,13 @@ export const USER = {
     password: 'aio_efhI17dXi8i3ZtaHW94rXiLzFTjq',
     suffix: `kkllm`
 }
-export const DefaultConnectOptions = {
-    reconnect: false,
-    cleanSession: true,
-    mqttVersion: 3,
-    keepAliveInterval: 60,
-    timeout: 60
-}
 
 export const ConnectSetting = {
     QOS: 0,
     RETAIN: true,
 };
 
+// didnt use this
 export const Topics = [{
         //johnwick123456
         name: `${USER.userName}/feeds/kkllm-iot-relay`,
