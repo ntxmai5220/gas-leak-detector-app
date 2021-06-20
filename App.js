@@ -79,8 +79,9 @@ const Custom_AppDrawerNavigator1=(props)=>(
         </View>
         <ScrollView>
         <DrawerItems {...props}
-          onItemPress={(route)=>{
-            if(route.routeName===route.Logout){
+          onItemPress={(scene)=>{
+						// console.log("route: ", scene)
+            if(scene.route.routeName==="Logout"){
               Alert.alert(
                 "Bạn muốn đăng xuất?","",
                 [{
@@ -124,7 +125,9 @@ const Custom_AppDrawerNavigator1=(props)=>(
                 }]
               );
               console.log('press logout')
-            }
+            } else {
+							props.navigation.navigate(scene.route.routeName);
+						}
           }}/>
         </ScrollView>
     </SafeAreaView>
