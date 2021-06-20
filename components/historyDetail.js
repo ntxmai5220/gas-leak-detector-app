@@ -172,12 +172,21 @@ class HistoryDetailComponent extends Component{
                 if (historyTime.toDateString() === self.state.today.toDateString()) {
                     console.log("Alarm this day: ", historyTime.toString());
                     // AlarmThisDay.push({key: `Báo động ${alarmcount}: ` + self._getFormattedTime(historyTime)});
-                    AlarmThisDay.push({key: self._getFormattedTime(historyTime)});
+                    AlarmThisDay.push({key: historyTime});
                     // alarmcount += 1;
                 }
             });
 
-            self.setState({alarmDataHistory: AlarmThisDay})
+            AlarmThisDay.sort(function (a, b) {
+                return a.key.getTime() - b.key.getTime();
+            });
+
+            var AlarmFormatted = []
+            AlarmThisDay.forEach(elem => {
+                AlarmFormatted.push({key: self._getFormattedTime(elem.key)})
+            })
+
+            self.setState({alarmDataHistory: AlarmFormatted})
         })
         .catch(error => {
             Alert.alert("Thông báo", error);
