@@ -39,6 +39,7 @@ const distance = 5;
 const chart_col = 12;
 const data_limit = distance * chart_col;
 
+const GAP = 1;
 
 
 class Dashboard extends Component{
@@ -167,9 +168,12 @@ class Dashboard extends Component{
                 data: {
                     labels: lb.reverse(),
                     datasets: [{
-                        data: dt.reverse(),
-                        color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
-                    },{data: [25], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`,},{data:[45], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`,}]
+                        data: dt.reverse()
+                    },{
+                        data: [Math.max(...dt) + GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                    },{
+                        data: [Math.min(...dt) - GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                    }]
                 }
             })
 
@@ -229,7 +233,7 @@ class Dashboard extends Component{
             // TURN ON IF TEMP IS OVER 37
             // TURN OFF MANUALLY, TEMP DOESNT AFFECT ALARM STATE. 
             if (parseFloat(t) > 37) {
-                self.turnOnHandler();
+                self._turnOnHandler();
                 self.setState({warning: true});
                 self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
             } else {
@@ -270,6 +274,10 @@ class Dashboard extends Component{
                 labels: lb,
                 datasets: [{
                     data: db
+                },{
+                    data: [Math.max(...db) + GAP]
+                },{
+                    data: [Math.min(...db) - GAP]
                 }]
             }
         })
@@ -342,9 +350,40 @@ class Dashboard extends Component{
         });
     }
 
+    turnOnHandlerButton = () => {
+        const self = this;
 
-    
-    turnOnHandler = async () => {
+        if (self.state.warning) return;
+
+        Alert.alert(
+            "Bật báo động","Bạn có thực sự muốn bật báo động không?",[{
+                text: "Không!",
+                onPress: () => {console.log('Cancel alarm!');},
+                style: "cancel"
+            }, {
+                text: "Bật ngay!",
+                onPress: async () => {await self._turnOnHandler();},
+                style: "destructive"
+        }]);
+    }
+    turnOffHandlerButton = () => {
+        const self = this;
+
+        if (!self.state.warning) return;
+
+        Alert.alert(
+            "Tắt báo động","Bạn có thực sự muốn tắt báo động không?",[{
+                text: "Không!",
+                onPress: () => {console.log('Cancel turn off alarm!');},
+                style: "cancel"
+            }, {
+                text: "Tắt báo động!",
+                onPress: async () => {await self._turnOffHandler();},
+                style: "destructive"
+        }]);
+    }
+
+    _turnOnHandler = async () => {
         // Topics.forEach(({ name, jsonobj, on }) => {
         //     this.mqtt.send(name, JSON.stringify(jsonobj(on)));
         // });
@@ -386,8 +425,7 @@ class Dashboard extends Component{
             console.error(error);
         });
     }
-    
-    turnOffHandler = async () => {
+    _turnOffHandler = async () => {
         // Topics.forEach(({ name, jsonobj, off }) => {
         //     this.mqtt.send(name, JSON.stringify(jsonobj(off)));
         // });
@@ -428,6 +466,7 @@ class Dashboard extends Component{
         });
     }
 
+
     render(){
         return (
             <ScrollView>
@@ -441,10 +480,10 @@ class Dashboard extends Component{
                     </TouchableOpacity> */}
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-evenly',}}>
-                <TouchableOpacity onPress={this.turnOnHandler} style={home_styles.btnOn}>
+                <TouchableOpacity onPress={this.turnOnHandlerButton} style={home_styles.btnOn}>
                     <Text style={home_styles.txtOn}>BẬT</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={this.turnOffHandler} style={home_styles.btnOff}>
+                <TouchableOpacity onPress={this.turnOffHandlerButton} style={home_styles.btnOff}>
                     <Text style={home_styles.txtOff}>TẮT</Text>
                 </TouchableOpacity>
                 </View>
