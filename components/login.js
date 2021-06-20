@@ -135,7 +135,7 @@ class Login extends Component {
             console.warn(responseJson);
             if (responseJson.status=="success"){
                 console.warn(responseJson);
-                showToastWithGravityAndOffset('Hi, '+ responseJson.data.name +"\nBạn đã đăng nhập thành công!", 0, 0);
+                showToastWithGravityAndOffset('Hi, '+ responseJson.data.name +"\nBạn đã đăng nhập thành công!", 0, -100);
                 this._onValueChange(STORAGE_KEY,responseJson.token);
                 this._onValueChange("fullname",responseJson.data.name)
                 this._onValueChange("email",responseJson.data.email)

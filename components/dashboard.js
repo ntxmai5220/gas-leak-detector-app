@@ -17,7 +17,6 @@ import MQTT from '../mqtt/mqtt-object';
 import {AsyncStorage} from "../node_modules/react-native";
 import init from 'react_native_mqtt';
 import uuid from 'react-native-uuid';
-import { interpolate } from 'react-native-reanimated';
 import * as Notifications from 'expo-notifications';
 
 
@@ -84,7 +83,7 @@ class Dashboard extends Component{
                         10,
                         // 30.0,
                     ]
-                }]
+                },{data: [25]},{data:[45]}]
             }
 
         }
@@ -168,8 +167,9 @@ class Dashboard extends Component{
                 data: {
                     labels: lb.reverse(),
                     datasets: [{
-                        data: dt.reverse()
-                    }]
+                        data: dt.reverse(),
+                        color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
+                    },{data: [25], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`,},{data:[45], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`,}]
                 }
             })
 
@@ -466,17 +466,17 @@ class Dashboard extends Component{
                     //segments={5}
                     verticalLabelRotation={55}
                     data={this.state.data}
-                    width={wp('105%')} // from react-native
-                    height={240}
+                    width={wp('104%')} // from react-native
+                    height={hp('30%')}
                     chartConfig={chartConfig}
                     //fromZero
                     bezier
                     //maxValue={45}
-                    style={{alignSelf:"center", marginTop:-10}}
+                    style={{alignSelf:"center", marginTop:-10, paddingBottom:20, marginBottom:-25}}
                     //formatYLabel={() => yLabelIterator.next().value}
                 />
             </View>
-            <View style={home_styles.box2}>
+            <View style={[home_styles.box2, {marginBottom:-55}]}>
                 <View style={[home_styles.item_wrapper]}>
                 <Text style={home_styles.item_title}>VAN GAS</Text>
                 <Text style={[home_styles.item_status,this.state.warning?{color:colors.red}:{color:colors.main_blue}]}>{ this.state.valve }</Text>

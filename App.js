@@ -109,7 +109,7 @@ const Custom_AppDrawerNavigator1=(props)=>(
                         console.warn(responseJson);
                         //Alert.alert("Thông báo!","Bạn đã đăng xuất thành công!");
                         console.log(responseJson.message);
-                        props.navigation.navigate('Login');
+                        props.navigation.navigate(scene.route.routeName);
                         showToastWithGravityAndOffset("Bạn đã đăng xuất thành công!",0,-100);
                       }
                       else{
@@ -126,7 +126,7 @@ const Custom_AppDrawerNavigator1=(props)=>(
               );
               console.log('press logout')
             } else {
-							props.navigation.navigate(scene.route.routeName);
+						  props.navigation.navigate(scene.route.routeName);
 						}
           }}/>
         </ScrollView>
@@ -155,7 +155,7 @@ const AppDrawerNavigator1 = createDrawerNavigator({
         navigationOptions: () => ({
             title: 'Đăng xuất',
           }),
-        screen: LogoutComponents
+        screen: LoginComponent
     },
 },{
   initialRouteName:'Dashboard',
@@ -185,7 +185,7 @@ async function registerForPushNotificationsAsync() {
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log(token);
   } else {
-    alert('Must use physical device for Push Notifications');
+    //alert('Must use physical device for Push Notifications');
   }
 
   if (Platform.OS === 'android') {

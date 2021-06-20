@@ -46,6 +46,9 @@ render(){
       data.push(['2','Cảm biến nhiệt độ']);
       data.push(['3','Động cơ quạt']);
       data.push(['4','Máy bơm nước']);
+      data.push(['5','Van gas']);
+      data.push(['6','Loa']);
+      data.push(['7','Màn hình']);
       // console.log(data);
       
       // AsyncStorage.getItem("fullname").then((name)=>{
@@ -56,116 +59,104 @@ render(){
       // });
     //  this.setInfo();
     return (
-           <View style={{flex:1}}>
-               <View style={{flex:0.2}}></View>
-               <Text style={{flex:1,fontSize:25,fontWeight:'bold'}}> {this.state.name}</Text>
-            <Image source={require('../assets/person-icon.png')} style={style.image_icon}></Image>
-            <View style={{flex:0.5}}></View>
-            <Text style={style.padd_text}>Email: {this.state.email}</Text>
-            <View style={{flex:6}}>
-            <Text style={{flex:1,fontSize:20}}>Thiết bị</Text>
-                <View style={[styles.container,{flex:8}]}>
-        <ScrollView horizontal={true}>
-          <View>
-            <Table borderStyle={{borderColor: '#C1C0B9'}}>
-              <Row data={this.state.tableHead} widthArr={this.state.widthArr} style={styles.head} textStyle={styles.text}/>
-            </Table>
-            <ScrollView style={styles.dataWrapper}>
-              <Table borderStyle={{borderColor: '#C1C0B9'}}>
-                {
-                  data.map((dataRow, index) => (
-                    <Row
-                      key={index}
-                      data={dataRow}
-                      widthArr={this.state.widthArr}
-                      style={[styles.row, index%2 && {backgroundColor: '#ffffff'}]}
-                      textStyle={styles.text}
-                    />
-                  ))
-                }
+        <View style={{flex:1,alignItems:'center',backgroundColor:colors.white}}>
+        <View style={style.headerPage}>
+        </View>  
+            <View style={style.midPage}>
+            <Image source={require('../assets/user.png')} style={style.image_icon}></Image>
+              <Text style={{fontSize:25,fontWeight:'600',alignSelf:'center',color: colors.main_blue}}> {this.state.name}</Text>
+              <Text style={style.padd_text}>Email: {this.state.email}</Text>
+            </View>
+            <View style={[styles.container,{flex:9.5}]}>
+         
+              <Table borderStyle={{borderColor: colors.black}}>
+                <Row data={this.state.tableHead} widthArr={this.state.widthArr} style={styles.head} textStyle={{textAlign: 'center',color: colors.white, fontSize:17, fontWeight:'600'}}/>
               </Table>
-            </ScrollView>
-          </View>
-        </ScrollView>
+              <ScrollView style={styles.dataWrapper}>
+                <Table borderStyle={{borderColor: colors.grey}}>
+                  {
+                    data.map((dataRow, index) => (
+                      <Row
+                        key={index}
+                        data={dataRow}
+                        widthArr={this.state.widthArr}
+                        style={[styles.row, index%2 && {backgroundColor: colors.white}]}
+                        textStyle={styles.text}
+                      />
+                    ))
+                  }
+                </Table>
+              </ScrollView>
+            </View>
       </View>
-      </View>
-    </View>
     )}
 };
 const style=StyleSheet.create({
-
+    headerPage:{
+      flex:4.5,
+      justifyContent:'center',
+      backgroundColor:colors.main_blue,
+      width:wp('150%'),
+      borderBottomRightRadius:wp('50%'),
+      borderBottomLeftRadius:wp('50%'),
+    },
+    midPage:{
+      flex:2.7,
+      justifyContent:'space-between',
+      marginTop:-wp('15%'),
+      width:wp('90%'),
+      backgroundColor:colors.white,
+      borderRadius:15,
+      shadowColor: colors.black,
+      shadowOffset: {
+        width: 2,
+        height: 2,
+      },
+      shadowOpacity:5,
+      elevation: 5, 
+    },
     image_icon:{
-        flex:1,
-        width:150,
+        marginTop:-wp('20%'),
+        width:wp('30%'),
+        height:wp('30%'),
         alignSelf:'center',
-        borderWidth:  3,
-        borderRadius:250,
-        borderColor:"black",
+        borderWidth: 2,
+        borderRadius:wp('25%'),
+        borderColor:colors.background,
         resizeMode: "cover",
         //backgroundColor:"#58D3F7"
     },
     padd_text:{
-        flex:0.5,
-        paddingRight:hp('10%'),
-        // borderRadius:30,
-    borderWidth:3,
-    borderColor: "#D8D8D8",
-    borderLeftWidth:0,
-    borderRightWidth:0,
-    // marginTop:hp('1%'),
-    marginBottom:hp('1%'),
-    fontSize:20,
-    padding:10
+        fontSize:16,
+        //padding:5,
+        marginBottom:10,
+        alignSelf:'center'
     },
-    btnLogin:{
-        width: wp('40%'),
-        height:50,
-        backgroundColor:colors.main_blue,
-        borderRadius:30,
-    
-        shadowColor: colors.main_blue,
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.9,
-        shadowRadius: 1,
-        elevation: 5, 
-        alignSelf: 'center',
-        alignItems: "center",
-        marginTop:hp('4%'),
-      },
-      txtLogin:{
-        color:'#fff',
-        fontWeight:'700',
-        fontSize:20,
-        letterSpacing:1.5,
-        textTransform:'uppercase',
-        textAlign: 'center',
-        padding:10,
-      }
 });
 const styles = StyleSheet.create({
-    container: { 
-      flex: 1, 
-      padding: 16, 
-      paddingTop: 30, 
-      backgroundColor: '#ffffff' 
+    container: {  
+      width:wp('100%'),
+      //borderTopLeftRadius:wp('20%'),
+      marginTop:wp('3%'),
+      padding: 15, 
+      backgroundColor: colors.white,
+      alignItems:'center'
     },
     head: { 
       height: 50, 
-      backgroundColor: '#6F7BD9' 
+      backgroundColor: colors.main_blue 
     },
     text: { 
       textAlign: 'center', 
-      fontWeight: '200' 
+      fontWeight: '400' ,
+      fontSize:15
     },
     dataWrapper: { 
       marginTop: -1 
     },
     row: { 
       height: 40, 
-      backgroundColor: '#F7F8FA' 
+      backgroundColor: colors.grey ,
     }
   });
 const ProfileComponent = createStackNavigator(  
