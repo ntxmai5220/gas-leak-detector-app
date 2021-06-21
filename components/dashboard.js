@@ -168,7 +168,9 @@ class Dashboard extends Component{
                 data: {
                     labels: lb.reverse(),
                     datasets: [{
-                        data: dt.reverse()
+                        data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
+                    },{
+                        data: dt.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
                     },{
                         data: [Math.max(...dt) + GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
                     },{
