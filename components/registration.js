@@ -65,6 +65,8 @@ class Registration extends Component{
 					console.warn(responseJson);
 					Alert.alert("Thông báo!","Bạn đã đăng ký thành công!");
 					this._onValueChange(STORAGE_KEY,responseJson.token)
+          this._onValueChange("fullname",responseJson.data.name)
+          this._onValueChange("email",responseJson.data.email)
 					this.props.navigation.navigate('Dashboard');
 				}
 				else{

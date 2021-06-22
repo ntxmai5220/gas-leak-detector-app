@@ -10,36 +10,17 @@ import {
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import { USER, Subscribe_Topics, getAdafruitFetch } from '../global/user';
+import { LISTENING_SERVER, Subscribe_Topics, getAdafruitFetch } from '../global/user';
 
-
-import MQTT from '../mqtt/mqtt-object';
 import {AsyncStorage} from "../node_modules/react-native";
-import init from 'react_native_mqtt';
-import uuid from 'react-native-uuid';
 import * as Notifications from 'expo-notifications';
 
-
-/*
-  TODO:
-  1.  Viết hàm get nhiệt theo 3 giờ 1 lần cho chart như mẫu,
-  2.  Viết hàm get nhiệt độ realtime,
-  3.  Viết hàm get trạng thái các thiết bị,
-  4.  Viết hàm báo động.
-  5.  Viết hàm get trạng thái hệ thống đang báo động hay ổn định,
-  6.  Viết hàm cho button Bật/tắt báo động, gửi tín hiệu về cho server điều khiển thiết bị
- */
+import io from 'socket.io-client';
 
 
 
-// const iokey = 'aio_CraM232LDztkYUG2RxHySDg7ZUTr';
-// const user_name = 'CSE_BBC';
-// const feed = 'bk-iot-temp-humid';
-const distance = 5;
-const chart_col = 12;
-const data_limit = distance * chart_col;
-
-const GAP = 1;
+const TEMPERATURE_CHART_GAP = 1;
+const TEMP_CAP = 40;
 
 
 class Dashboard extends Component{
@@ -60,7 +41,7 @@ class Dashboard extends Component{
         super(props);
         this.state = {
             token : null,
-            mqtt: null,
+            socket: null,
             valve : 'MỞ',
             fan: 'TẮT',
             pump: 'TẮT',
@@ -98,43 +79,50 @@ class Dashboard extends Component{
             this.setState({valve: 'MỞ', fan: 'TẮT', pump: 'TẮT'});
         }
     }
-    _subscribeTopics = (mqtt) => {
-        console.log("Subscribing");
-        Subscribe_Topics.forEach((sub_topic) => {
-            mqtt.subscribeTopic(sub_topic.name);
-        });
-    }
-    _unsubscribeTopics = (mqtt) => {
-        console.log("Unsubscribing");
-        Subscribe_Topics.forEach((sub_topic) => {
-            mqtt.unsubscribeTopic(sub_topic.name);
-        });
-    }
     
+    // mounting -------------------------------------------------------------------------------
     componentDidMount() {
-        // mqtt subscribe
-        const mqttobj = new MQTT();
-        mqttobj.ConnectSuccessAction = () => {
-            this._subscribeTopics(mqttobj);
-        }
-        mqttobj.SetResponseFunction = (message) => {
-            console.log("Changing state of ", message.destinationName);
-            console.log("see value:  ", JSON.parse(message.payloadString).data);
-            let val = JSON.parse(message.payloadString).data
-            this.updateObjects(message.destinationName, val);
-        }
-        mqttobj.connect(USER.host, USER.port, USER.userName, USER.password);
+        const self = this;
 
-        this.setState({mqtt: mqttobj})
+        // connect socket
+        const socket = io(LISTENING_SERVER.sockethost);
+        self.setState({socket: socket});
+        socket.on("connect", () => {console.log("socket io connected!")});
+        socket.on("tempHumid", obj => {
+            console.log("temp humid data: ", obj.data);
+            let t = obj.data.split('-')[0];
+
+            self.setState({temp: t});
+
+            // update chart
+            self._realtimeChartUpdate(parseInt(t));
+
+
+		});
+		socket.on("gas", obj => {
+			let datavalue = obj.data;
+            console.log("gas: ", datavalue)
+		});
+		socket.on("alarm", obj => {
+            console.log("alarm: ", obj);
+            if (obj.gasOverThreshold || obj.temperature > TEMP_CAP) self.setState({warning: true});
+
+		});
+		socket.on("relay", obj => {
+            console.log("relay socket data: ", obj.data);
+            self._setInnerRelay(obj.data == '1');
+		});
 
         // get init data
-        this.getInitData();
+        self.getInitData();
     }
     componentWillUnmount() {
-        const mqttobj = this.state.mqtt;
-        if (mqttobj) {
-            this._unsubscribeTopics(mqttobj);
-        }
+        console.log("removing listeners...");
+        this.state.socket.removeAllListeners("tempHumid");
+        this.state.socket.removeAllListeners("gas");
+        this.state.socket.removeAllListeners("alarm");
+        this.state.socket.removeAllListeners("relay");
+        console.log("removing listeners complete!");
     }
 
 
@@ -144,6 +132,7 @@ class Dashboard extends Component{
 
         // get init temperature
         getAdafruitFetch('temp', 8).then(jsonobj => {
+            console.log("temp data: ", jsonobj);
             // get first data
             let t = JSON.parse(jsonobj[0].value).data.split('-')[0];
             self.setState({temp: t});
@@ -168,13 +157,13 @@ class Dashboard extends Component{
                 data: {
                     labels: lb.reverse(),
                     datasets: [{
-                        data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
-                    },{
                         data: dt.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
                     },{
-                        data: [Math.max(...dt) + GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                        data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
                     },{
-                        data: [Math.min(...dt) - GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                        data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                    },{
+                        data: [Math.min(...dt) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
                     }]
                 }
             })
@@ -189,6 +178,7 @@ class Dashboard extends Component{
 
         // get init relay
         getAdafruitFetch('relay', 1).then(jsonobj => {
+            console.log("relay data: ", jsonobj);
             // get first data
             let d = JSON.parse(jsonobj[0].value).data;
             self._setInnerRelay(d == '1');
@@ -203,66 +193,68 @@ class Dashboard extends Component{
         
     }
 
-    // main object update
-    updateObjects = (destinationName, data) => {
-        Subscribe_Topics.forEach(({ name, thing, feed }) => {
-            if (name == destinationName) {
-                this.subscriberHandler(thing, data);
-            }
-        });
-    }
-    subscriberHandler = (subscribeObject, data) => {
-        const self = this;
+    // // main object update (NOT USED)
+    // updateObjects = (destinationName, data) => {
+    //     Subscribe_Topics.forEach(({ name, thing, feed }) => {
+    //         if (name == destinationName) {
+    //             this.subscriberHandler(thing, data);
+    //         }
+    //     });
+    // }
+    // subscriberHandler = (subscribeObject, data) => {
+    //     const self = this;
 
-        // relay subscriber
-        // ------------------------------------------------------------------------------
-        if (subscribeObject == 'relay') {
-            self._setInnerRelay(data == '1');
-        }
+    //     // relay subscriber
+    //     // ------------------------------------------------------------------------------
+    //     if (subscribeObject == 'relay') {
+    //         self._setInnerRelay(data == '1');
+    //     }
 
-        // temp subscriber
-        // ------------------------------------------------------------------------------
-        if (subscribeObject == 'temp') {
-            let t = data.split('-')[0];
+    //     // temp subscriber
+    //     // ------------------------------------------------------------------------------
+    //     if (subscribeObject == 'temp') {
+    //         let t = data.split('-')[0];
 
-            // update temp number
-            self.setState({temp: t});
+    //         // update temp number
+    //         self.setState({temp: t});
 
-            // update chart
-            self._realtimeChartUpdate(parseInt(t));
+    //         // update chart
+    //         self._realtimeChartUpdate(parseInt(t));
 
-            // WARNING HANDLE:
-            // TURN ON IF TEMP IS OVER 37
-            // TURN OFF MANUALLY, TEMP DOESNT AFFECT ALARM STATE. 
-            if (parseFloat(t) > 37) {
-                self._turnOnHandler();
-                self.setState({warning: true});
-                self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
-            } else {
-                // self.setState({ warning: false});
-                // self.turnOffHandler();
-            }
-        }
+    //         // WARNING HANDLE:
+    //         // TURN ON IF TEMP IS OVER TEMP_CAP
+    //         // TURN OFF MANUALLY, TEMP DOESNT AFFECT ALARM STATE. 
+    //         if (parseFloat(t) > TEMP_CAP) {
+    //             self._turnOnHandler();
+    //             self.setState({warning: true});
+    //             self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
+    //         } else {
+    //             // self.setState({ warning: false});
+    //             // self.turnOffHandler();
+    //         }
+    //     }
 
-        // gas subscriber
-        // -------------------------------------------------------------------------------
-        if (subscribeObject == 'gas') {
-            if (data == '1') {
-                // self.turnOnHandler();
-                self.setState({warning: true});
-                self.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
-            } else {
-                // self.turnOffHandler();
-            }
-        }
-    }
+    //     // gas subscriber
+    //     // -------------------------------------------------------------------------------
+    //     if (subscribeObject == 'gas') {
+    //         if (data == '1') {
+    //             // self.turnOnHandler();
+    //             self.setState({warning: true});
+    //             self.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
+    //         } else {
+    //             // self.turnOffHandler();
+    //         }
+    //     }
+    // }
+
+
+
     _realtimeChartUpdate = (temp) => {
-        console.log("updating");
-        let db = this.state.data.datasets[0].data;
+        let dt = this.state.data.datasets[0].data;
         let lb = this.state.data.labels;
         
-        db = db.slice(1);
-        db.push(temp);
+        dt = dt.slice(1);
+        dt.push(temp);
         
         const thistime = new Date();
         console.log(thistime.toTimeString())
@@ -275,73 +267,76 @@ class Dashboard extends Component{
             data: {
                 labels: lb,
                 datasets: [{
-                    data: db
+                    data: dt, color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
                 },{
-                    data: [Math.max(...db) + GAP]
+                    data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
                 },{
-                    data: [Math.min(...db) - GAP]
+                    data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                },{
+                    data: [Math.min(...dt) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
                 }]
             }
+
         })
-        console.log("updating");
     }
 
-    // not used!
-    getInitChartData = () => {
+    // // not used!
+    // getInitChartData = () => {
 
-        const self = this;
+    //     const self = this;
 
-        fetch(`https://io.adafruit.com/api/v2/${user_name}/feeds/${feed}/data?limit=${data_limit}`, {
-            method: 'GET',
-            headers: {
-                'X-AIO-Key': iokey
-            }
-        })
-        .then(response => response.json())
-        .then(function(response) {
-            console.log("response:");
-            console.log(response);
+    //     fetch(`https://io.adafruit.com/api/v2/${user_name}/feeds/${feed}/data?limit=${data_limit}`, {
+    //         method: 'GET',
+    //         headers: {
+    //             'X-AIO-Key': iokey
+    //         }
+    //     })
+    //     .then(response => response.json())
+    //     .then(function(response) {
+    //         console.log("response:");
+    //         console.log(response);
 
-            //---------------------------
-            var lb = [];
-            var dt = [];
+    //         //---------------------------
+    //         var lb = [];
+    //         var dt = [];
 
-            var count = 0;
+    //         var count = 0;
         
-            response.forEach(elem => {
-                count += 1;
-                if (count % distance == 1) {
-                    let d = new Date(elem["created_at"]);
-                    lb.push(d.toTimeString());
-                    dt.push(parseInt(JSON.parse(elem["value"])["data"]));
-                }
+    //         response.forEach(elem => {
+    //             count += 1;
+    //             if (count % distance == 1) {
+    //                 let d = new Date(elem["created_at"]);
+    //                 lb.push(d.toTimeString());
+    //                 dt.push(parseInt(JSON.parse(elem["value"])["data"]));
+    //             }
         
-            });
+    //         });
         
-            console.log(lb);
-            console.log(dt);
+    //         console.log(lb);
+    //         console.log(dt);
         
-            // data.labels = lb;
-            // data.datasets[0]["data"] = dt;
-            self.setState({
-                data: {
-                    labels: lb,
-                    datasets: [{
-                        data: dt
-                    }]
-                }
-            })
+    //         // data.labels = lb;
+    //         // data.datasets[0]["data"] = dt;
+    //         self.setState({
+    //             data: {
+    //                 labels: lb,
+    //                 datasets: [{
+    //                     data: dt
+    //                 }]
+    //             }
+    //         })
             
-            // console.log(response["data"]["columns"])
-            // console.log(response["data"]["data"])
-        })
-        .catch(function (err) {
-            console.log("Error!");
-            console.log(err);
-        })
-    }
+    //         // console.log(response["data"]["columns"])
+    //         // console.log(response["data"]["data"])
+    //     })
+    //     .catch(function (err) {
+    //         console.log("Error!");
+    //         console.log(err);
+    //     })
+    // }
 
-
+    // -----------------------------------------------------------------------------------
+    // SCHEDULE
     schedulePushNotification(mess) {
         Notifications.scheduleNotificationAsync({
             content: {
@@ -352,6 +347,8 @@ class Dashboard extends Component{
         });
     }
 
+    // -----------------------------------------------------------------------------------
+    // ON OFF ALARM CALLS
     turnOnHandlerButton = () => {
         const self = this;
 
@@ -385,6 +382,7 @@ class Dashboard extends Component{
         }]);
     }
 
+    // call server to turn on alarm
     _turnOnHandler = async () => {
         // Topics.forEach(({ name, jsonobj, on }) => {
         //     this.mqtt.send(name, JSON.stringify(jsonobj(on)));
@@ -398,7 +396,7 @@ class Dashboard extends Component{
         console.log("Turning on alarm");
 
         
-        return fetch(`https://mysterious-reaches-12750.herokuapp.com/api/alarm/turn-on`, { 
+        return fetch(LISTENING_SERVER.turnOnAlarm, { 
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -427,6 +425,7 @@ class Dashboard extends Component{
             console.error(error);
         });
     }
+    // call server to turn off alarm
     _turnOffHandler = async () => {
         // Topics.forEach(({ name, jsonobj, off }) => {
         //     this.mqtt.send(name, JSON.stringify(jsonobj(off)));
@@ -440,7 +439,7 @@ class Dashboard extends Component{
         console.log("Turning off alarm");
 
         
-        return fetch(`https://mysterious-reaches-12750.herokuapp.com/api/alarm/turn-off`, { 
+        return fetch(LISTENING_SERVER.turnOffAlarm, { 
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -467,7 +466,7 @@ class Dashboard extends Component{
             console.error(error);
         });
     }
-
+    // -----------------------------------------------------------------------------------
 
     render(){
         return (

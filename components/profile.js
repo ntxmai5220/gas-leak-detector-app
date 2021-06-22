@@ -28,18 +28,21 @@ class Profile extends Component{
     this.state = {
       tableHead: ['STT', 'Tên thiết bị'],
       widthArr: [50,300],
-      name:"",
-      email:""
+      name:"unknown",
+      email:"unknown"
     }
-    this.setInfo();
+    
+  }
   
+  componentDidMount() {
+    this.setInfo();
   }
   
   setInfo=async ()=>{
       this.setState({name: await AsyncStorage.getItem('fullname').then(value => value)});
       this.setState({email:  await AsyncStorage.getItem('email').then(value => value)});
   }
-render(){
+  render(){
     //const state = this.state;
     const data = [];
       data.push(['1','Cảm biến nồng độ khí gas']);

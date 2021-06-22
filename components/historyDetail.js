@@ -148,7 +148,7 @@ class HistoryDetailComponent extends Component{
 				console.log(res.message);
                 return Promise.reject(new Error("Lấy báo động từ server thất bại!"));
 			} else {
-				console.log("success");
+				console.log("success getting alarms");
                 return res;
 				// this.getdayalarm(res, new Date(2021, 5, 14));
 			}
