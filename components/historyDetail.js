@@ -12,6 +12,8 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import {AsyncStorage} from "../node_modules/react-native";
 
 
+const TEMPERATURE_CHART_GAP = 1
+
 class HistoryDetailComponent extends Component{
     constructor(props) {  
         super(props);  
@@ -72,6 +74,90 @@ class HistoryDetailComponent extends Component{
 
     getTemperatureFromDatabase = async () => {
         // TODO
+        const self = this;
+        self._getTemperatureRequest().then(res => {
+            console.log('res: ', res)
+            var ret = self._executeTemperatureFormat(res.data);
+
+            self._drawChart(ret.temp, ret.time);
+
+        }).catch((mess) => {
+			console.log(mess)
+		});
+    }
+    _getTemperatureRequest = async () => {
+        let dt =  this.state.today.getDate();
+        if (dt < 10) dt = '0' + dt;
+        let m = this.state.today.getMonth() + 1;
+        if (m < 10) m = '0' + m;
+
+        var date = `${m}-${dt}-${this.state.today.getFullYear()}`;
+        var link = `https://mysterious-reaches-12750.herokuapp.com/api/temperature/daily-data?date=${date}`;
+        console.log("date links: ", link);
+
+        return fetch(link, {
+            method: 'GET',
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + this.state.token,
+            })
+        })
+        .then(response => response.json())
+		.then((res) => {
+			if (res.status == "fail") {
+                console.log("Failed to get temperature!");
+				console.log(res.message);
+                return Promise.reject(new Error("Lấy nhiệt độ từ server thất bại!"));
+			} else {
+				console.log("success getting temperature");
+                return res;
+				// this.getdayalarm(res, new Date(2021, 5, 14));
+			}
+		})
+		.catch((mess) => {
+			console.log(mess)
+		})
+    }
+    _executeTemperatureFormat = (temps) => {
+        const self = this;
+        var todaytemp = []
+        temps.forEach(elem => {
+            let oridate = new Date(elem.time);
+            oridate.setTime( oridate.getTime() - new Date().getTimezoneOffset()*60*1000 )
+            todaytemp.push({temp: elem.temperature, time:  oridate})
+        })
+
+        todaytemp.sort(function (a, b) {
+            return a.time.getTime() - b.time.getTime();
+        });
+
+        var filtertemp = []
+        var filtertime = []
+
+        todaytemp.forEach(item => {
+            filtertemp.push(item.temp)
+            filtertime.push(item.time.toTimeString().split(" ")[0])
+        })
+
+        return {temp: filtertemp, time: filtertime};
+    }
+    _drawChart = (temperature, timeline) => {
+
+        this.setState({
+            dataSource: {
+                labels: timeline,
+                datasets: [{
+                    data: temperature.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
+                },{
+                    data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
+                },{
+                    data: [Math.max(...temperature) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                },{
+                    data: [Math.min(...temperature) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                }]
+            }
+        })
     }
 
     // UNUSED
@@ -219,6 +305,7 @@ class HistoryDetailComponent extends Component{
                 <View>
                     <LineChart
                         //segments={5}
+                        verticalLabelRotation={55}
                         data={this.state.dataSource}
                         width={wp('105%')} // from react-native
                         height={240}
