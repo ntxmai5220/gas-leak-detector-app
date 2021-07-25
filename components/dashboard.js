@@ -79,7 +79,28 @@ class Dashboard extends Component{
             this.setState({valve: 'MỞ', fan: 'TẮT', pump: 'TẮT'});
         }
     }
+
+    // set state of alarm
+    _setAlarmState = (st) => {
+        this.setState({warning: st});
+    }
+    // get api state of alarm
+    _getStateApi = async () => {
+        await this._stateFetch();
+    }
+    _stateFetch = () => {
+        const self = this;
+        return fetch(LISTENING_SERVER.stateGet, {
+            method: 'GET',
+        })
+        .then(response => response.json())
+        .then(res => {
+            console.log("Alarm state api: ", res.state)
+            self._setAlarmState(res.state == "on")
+        })
+    }
     
+
     // mounting -------------------------------------------------------------------------------
     componentDidMount() {
         const self = this;
@@ -87,7 +108,11 @@ class Dashboard extends Component{
         // connect socket
         const socket = io(LISTENING_SERVER.sockethost);
         self.setState({socket: socket});
+        
         socket.on("connect", () => {console.log("socket io connected!")});
+        socket.on("state", obj => {
+            console.log("state connected! data: ", obj);
+        });
         socket.on("tempHumid", obj => {
             console.log("temp humid data: ", obj.data);
             let t = obj.data.split('-')[0];
@@ -105,7 +130,10 @@ class Dashboard extends Component{
 		});
 		socket.on("alarm", obj => {
             console.log("alarm: ", obj);
-            if (obj.gasOverThreshold || obj.temperature > TEMP_CAP) self.setState({warning: true});
+            if (obj.gasOverThreshold || obj.temperature > TEMP_CAP) {
+                // self.setState({warning: true});
+                self._getStateApi();
+            }
 
 		});
 		socket.on("relay", obj => {
@@ -122,6 +150,7 @@ class Dashboard extends Component{
         this.state.socket.removeAllListeners("gas");
         this.state.socket.removeAllListeners("alarm");
         this.state.socket.removeAllListeners("relay");
+        this.state.socket.removeAllListeners("state");
         console.log("removing listeners complete!");
     }
 
@@ -129,6 +158,9 @@ class Dashboard extends Component{
     // get init data of all
     getInitData = () => {
         const self = this;
+
+        // get init state
+        self._getStateApi();
 
         // get init temperature
         getAdafruitFetch('temp', 8).then(jsonobj => {
@@ -414,11 +446,13 @@ class Dashboard extends Component{
             if (responseJson.status=="success"){
                 console.log("turn on json: ", responseJson);
                 Alert.alert("Thông báo!","Báo động đã được bật!");
-                self.setState({warning: true});
+                // self.setState({warning: true});
+                self._getStateApi();
             }
             else{
                 console.warn(responseJson);
-                Alert.alert("Thông báo!",responseJson.message);
+                Alert.alert("Thông báo!!!",responseJson.message);
+                self._setAlarmState(true);
             }
         })
         .catch((error) =>{
@@ -455,11 +489,13 @@ class Dashboard extends Component{
             if (responseJson.status=="success"){
                 console.log("turn off json: ",responseJson);
                 Alert.alert("Thông báo!","Báo động đã tắt!");
-                self.setState({warning: false});
+                // self.setState({warning: false});
+                self._getStateApi();
             }
             else{
                 console.warn(responseJson);
-                Alert.alert("Thông báo!",responseJson.message);
+                Alert.alert("Thông báo!!!",responseJson.message);
+                self._setAlarmState(false);
             }
         })
         .catch((error) =>{

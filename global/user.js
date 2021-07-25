@@ -5,6 +5,7 @@ export const LISTENING_SERVER = {
     sockethost: serversocket,
     turnOnAlarm: `${serverlink}/api/alarm/turn-on`,
     turnOffAlarm: `${serverlink}/api/alarm/turn-off`,
+    stateGet: `${serverlink}/api/alarm/state`,
 }
 
 export const USER = {
