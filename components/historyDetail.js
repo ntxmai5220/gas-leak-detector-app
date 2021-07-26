@@ -11,6 +11,7 @@ import {
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {AsyncStorage} from "../node_modules/react-native";
 
+import { LISTENING_SERVER } from '../global/user';
 
 const TEMPERATURE_CHART_GAP = 1
 
@@ -92,7 +93,7 @@ class HistoryDetailComponent extends Component{
         if (m < 10) m = '0' + m;
 
         var date = `${m}-${dt}-${this.state.today.getFullYear()}`;
-        var link = `https://mysterious-reaches-12750.herokuapp.com/api/temperature/daily-data?date=${date}`;
+        var link = LISTENING_SERVER.dailyData + `?date=${date}`;
         console.log("date links: ", link);
 
         return fetch(link, {
@@ -218,7 +219,7 @@ class HistoryDetailComponent extends Component{
     }
 
     _getAlarmRequest = async () => {
-        return fetch(`https://mysterious-reaches-12750.herokuapp.com/api/alarm/history`, { 
+        return fetch(LISTENING_SERVER.historyAPI, { 
             method: 'GET',
             headers: new Headers({
                 'Accept': 'application/json',

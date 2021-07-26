@@ -10,7 +10,7 @@ import {
 } from 'react-native-chart-kit';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
-import { LISTENING_SERVER, Subscribe_Topics, getAdafruitFetch } from '../global/user';
+import { LISTENING_SERVER, getAdafruitFetch } from '../global/user';
 
 import {AsyncStorage} from "../node_modules/react-native";
 import * as Notifications from 'expo-notifications';
@@ -69,10 +69,12 @@ class Dashboard extends Component{
             }
 
         }
+
     }
 
     // set states of inner relay dependencies
     _setInnerRelay = (relay) => {
+        console.log("Relay set to: ", relay)
         if (relay) {
             this.setState({valve: 'ĐÓNG', fan: 'BẬT', pump: 'BẬT'});
         } else {
@@ -84,6 +86,7 @@ class Dashboard extends Component{
     _setAlarmState = (st) => {
         this.setState({warning: st});
     }
+
     // get api state of alarm
     _getStateApi = async () => {
         await this._stateFetch();
@@ -93,10 +96,16 @@ class Dashboard extends Component{
         return fetch(LISTENING_SERVER.stateGet, {
             method: 'GET',
         })
-        .then(response => response.json())
+        .then(response =>  {
+            // console.log("response _stateFetch: ", response.text())
+            return response.json();
+        })
         .then(res => {
             console.log("Alarm state api: ", res.state)
             self._setAlarmState(res.state == "on")
+        })
+        .catch(err => {
+            console.log("Error _stateFetch: ", err)
         })
     }
     
@@ -110,22 +119,19 @@ class Dashboard extends Component{
         self.setState({socket: socket});
         
         socket.on("connect", () => {console.log("socket io connected!")});
-        socket.on("state", obj => {
-            console.log("state connected! data: ", obj);
-        });
         socket.on("tempHumid", obj => {
             console.log("temp humid data: ", obj.data);
             let t = obj.data.split('-')[0];
-
+            
             self.setState({temp: t});
-
+            
             // update chart
             self._realtimeChartUpdate(parseInt(t));
-
-
+            
+            
 		});
 		socket.on("gas", obj => {
-			let datavalue = obj.data;
+            let datavalue = obj.data;
             console.log("gas: ", datavalue)
 		});
 		socket.on("alarm", obj => {
@@ -134,13 +140,21 @@ class Dashboard extends Component{
                 // self.setState({warning: true});
                 self._getStateApi();
             }
-
+            
 		});
 		socket.on("relay", obj => {
             console.log("relay socket data: ", obj.data);
             self._setInnerRelay(obj.data == '1');
 		});
-
+        socket.on("state", obj => {
+            console.log("state connected! data: ", obj);
+        });
+		socket.on("lastest", obj => {
+            console.log("latest data of socket: ", obj);
+            self._setInnerRelay(obj.relay == '1')
+            self.setState({temp: obj.temperatureData});
+		});
+        
         // get init data
         self.getInitData();
     }
@@ -151,6 +165,7 @@ class Dashboard extends Component{
         this.state.socket.removeAllListeners("alarm");
         this.state.socket.removeAllListeners("relay");
         this.state.socket.removeAllListeners("state");
+        this.state.socket.removeAllListeners("lastest");
         console.log("removing listeners complete!");
     }
 
@@ -165,9 +180,9 @@ class Dashboard extends Component{
         // get init temperature
         getAdafruitFetch('temp', 8).then(jsonobj => {
             console.log("temp data: ", jsonobj);
-            // get first data
-            let t = JSON.parse(jsonobj[0].value).data.split('-')[0];
-            self.setState({temp: t});
+            // // get first data
+            // let t = JSON.parse(jsonobj[0].value).data.split('-')[0];
+            // self.setState({temp: t});
 
             // get 8 data for chart
             var lb = [];
@@ -209,18 +224,18 @@ class Dashboard extends Component{
 
 
         // get init relay
-        getAdafruitFetch('relay', 1).then(jsonobj => {
-            console.log("relay data: ", jsonobj);
-            // get first data
-            let d = JSON.parse(jsonobj[0].value).data;
-            self._setInnerRelay(d == '1');
+        // getAdafruitFetch('relay', 1).then(jsonobj => {
+        //     console.log("relay data: ", jsonobj);
+        //     // get first data
+        //     let d = JSON.parse(jsonobj[0].value).data;
+        //     self._setInnerRelay(d == '1');
 
-            console.log("Success getting init relay!");
+        //     console.log("Success getting init relay!");
 
-        })
-        .catch(err => {
-            console.warn(err);
-        })
+        // })
+        // .catch(err => {
+        //     console.warn(err);
+        // })
 
         
     }
@@ -456,6 +471,7 @@ class Dashboard extends Component{
             }
         })
         .catch((error) =>{
+            console.log("error _turnOnHandler:");
             console.error(error);
         });
     }
@@ -499,6 +515,7 @@ class Dashboard extends Component{
             }
         })
         .catch((error) =>{
+            console.log("error _turnOffHandler:");
             console.error(error);
         });
     }

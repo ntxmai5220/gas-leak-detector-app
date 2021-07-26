@@ -21,6 +21,9 @@ import { createDrawerNavigator } from 'react-navigation-drawer';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 //import { useFonts } from 'expo-font';
 import colors from '../assets/colors'
+
+import { LISTENING_SERVER } from '../global/user';
+
 var STORAGE_KEY = 'id_token';
 
 
@@ -45,7 +48,7 @@ class Registration extends Component{
 			Alert.alert("Thông báo!", "Mật khẩu và xác nhận không khớp nhau!");
 			return null;
 		} else {
-			return fetch('https://mysterious-reaches-12750.herokuapp.com/api/users/signup', { 
+			return fetch(LISTENING_SERVER.registrationAPI, { 
 				method: 'POST',
 				headers: {
 					'Accept': 'application/json',

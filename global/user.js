@@ -1,25 +1,43 @@
-const serverlink = `https://mysterious-reaches-12750.herokuapp.com`;
-const serversocket = `ws://mysterious-reaches-12750.herokuapp.com`;
+const serverlink = `https://gas-leak-detector.herokuapp.com`;
+const serversocket = `ws://gas-leak-detector.herokuapp.com`;
 
-export const LISTENING_SERVER = {
-    sockethost: serversocket,
-    turnOnAlarm: `${serverlink}/api/alarm/turn-on`,
-    turnOffAlarm: `${serverlink}/api/alarm/turn-off`,
-    stateGet: `${serverlink}/api/alarm/state`,
-}
 
 export const USER = {
     host: 'io.adafruit.com',
     port: 80,
-    userName: 'navcul3108',
-    password: 'aio_efhI17dXi8i3ZtaHW94rXiLzFTjq',
+    // userName: 'navcul3108',
+    // password: 'aio_efhI17dXi8i3ZtaHW94rXiLzFTjq',
+    userName: 'CSE_BBC',
+    password: '??????',
     suffix: `bk`
 }
+
+
+export const LISTENING_SERVER = {
+    sockethost: serversocket,
+    registrationAPI: `${serverlink}/api/users/signup`,
+
+    loginAPI: `${serverlink}/api/users/login`,
+
+    logoutAPI: `${serverlink}/api/users/logout`,
+
+    turnOnAlarm: `${serverlink}/api/alarm/turn-on`,
+
+    turnOffAlarm: `${serverlink}/api/alarm/turn-off`,
+
+    historyAPI: `${serverlink}/api/alarm/history`,
+
+    dailyData: `${serverlink}/api/temperature/daily-data`,
+
+    stateGet: `${serverlink}/api/alarm/state`,
+}
+
 
 export const ConnectSetting = {
     QOS: 0,
     RETAIN: true,
 };
+
 
 export const Subscribe_Topics = [{
         name: `${USER.userName}/feeds/${USER.suffix}-iot-relay`,
@@ -36,9 +54,9 @@ export const Subscribe_Topics = [{
     },
 ];
 
-export const getAdafruitFetch = (topicThingName, fetchNumber) => {
 
-    console.log("THIS FUNC HAS BEEN CALLED!");
+export const getAdafruitFetch = (topicThingName, fetchNumber) => {
+    console.log("GETTING ADAFRUIT FETCH!");
 
     var foundTopic = null;
 

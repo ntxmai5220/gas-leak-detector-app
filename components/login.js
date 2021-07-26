@@ -17,6 +17,9 @@ import {
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
+import { LISTENING_SERVER } from '../global/user';
+
 const styless = StyleSheet.create({
   container: {
     flex: 1,
@@ -118,7 +121,7 @@ class Login extends Component {
         //Alert.alert("Thông báo!","Bạn đã đăng nhập thành công!");
         //console.log(this.state.password)
         // const loginlink = 'http://192.168.43.123:3000/login';
-        const loginlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/login';
+        const loginlink = LISTENING_SERVER.loginAPI;
         return fetch(loginlink, { 
             method: 'POST',
             headers: {

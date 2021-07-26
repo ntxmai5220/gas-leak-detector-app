@@ -17,6 +17,9 @@ import {
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+
+import { LISTENING_SERVER } from '../global/user';
+
 const styless = StyleSheet.create({
   container: {
     flex: 1,
@@ -109,7 +112,7 @@ class Logout extends Component {
       }
     }
     _onSubmit= async ()=>{
-        const logoutlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/logout';
+        const logoutlink = LISTENING_SERVER.logoutAPI;
         let t = await AsyncStorage.getItem(STORAGE_KEY).then(value => value);
         return fetch(logoutlink, { 
             method: 'POST',

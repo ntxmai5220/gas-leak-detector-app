@@ -19,6 +19,9 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import colors from './assets/colors';
+
+import { LISTENING_SERVER } from './global/user'
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -90,7 +93,7 @@ const Custom_AppDrawerNavigator1=(props)=>(
                     style: "cancel"
                   },{ 
                     text: "OK", onPress: async ()=>{
-                    const logoutlink = 'https://mysterious-reaches-12750.herokuapp.com/api/users/logout';
+                    const logoutlink = LISTENING_SERVER.logoutAPI;
                     let t = await AsyncStorage.getItem(STORAGE_KEY).then(value => value);
                     return fetch(logoutlink, { 
                       method: 'POST',
