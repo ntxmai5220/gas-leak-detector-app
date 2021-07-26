@@ -206,8 +206,6 @@ class Dashboard extends Component{
                     datasets: [{
                         data: dt.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
                     },{
-                        data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
-                    },{
                         data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
                     },{
                         data: [Math.min(...dt) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
@@ -315,8 +313,6 @@ class Dashboard extends Component{
                 labels: lb,
                 datasets: [{
                     data: dt, color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
-                },{
-                    data: [40,40,40,40,40,40,40,40], color: (opacity = 1) => `rgba(147, 12, 12, ${opacity})`,
                 },{
                     data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
                 },{

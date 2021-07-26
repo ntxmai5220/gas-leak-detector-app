@@ -306,16 +306,15 @@ class HistoryDetailComponent extends Component{
                 <View>
                     <LineChart
                         //segments={5}
-                        verticalLabelRotation={55}
+                         verticalLabelRotation={55}
                         data={this.state.dataSource}
-                        width={wp('105%')} // from react-native
-                        height={240}
+                        width={wp('104%')} // from react-native
+                        height={hp('30%')}
                         chartConfig={chartConfig}
                         //fromZero
                         bezier
                         //maxValue={45}
-                        style={{alignSelf:"center", marginTop:20}}
-                        //formatYLabel={() => yLabelIterator.next().value}
+                        style={{alignSelf:"center", marginTop:15, paddingBottom:25, marginBottom:-35}}
                     />
                 </View>
                 <Text style={styles.title}>BÁO ĐỘNG</Text>
