@@ -20,7 +20,7 @@ import io from 'socket.io-client';
 
 
 const TEMPERATURE_CHART_GAP = 1;
-const TEMP_CAP = 40;
+const TEMP_CAP = 45;
 
 
 class Dashboard extends Component{
@@ -128,11 +128,13 @@ class Dashboard extends Component{
             // update chart
             self._realtimeChartUpdate(parseInt(t));
             
-            
+            if (t > TEMP_CAP) self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
 		});
 		socket.on("gas", obj => {
             let datavalue = obj.data;
             console.log("gas: ", datavalue)
+
+            if (datavalue == 1) self.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
 		});
 		socket.on("alarm", obj => {
             console.log("alarm: ", obj);
@@ -152,7 +154,8 @@ class Dashboard extends Component{
 		socket.on("lastest", obj => {
             console.log("latest data of socket: ", obj);
             self._setInnerRelay(obj.relay == '1')
-            self.setState({temp: obj.temperatureData});
+            // self.setState({temp: obj.temperatureData});
+            self._initTemp(obj.temperatureData);
 		});
         
         // get init data
@@ -169,8 +172,46 @@ class Dashboard extends Component{
         console.log("removing listeners complete!");
     }
 
+    _initTemp = (jsonobj) => {
+        const self = this;
+        // get first data
+        let t = jsonobj[0].temperature;
+        self.setState({temp: t});
 
-    // get init data of all
+        // get 8 data for chart
+        var lb = [];
+        var dt = [];
+
+        var count = 0;
+    
+        jsonobj.forEach(elem => {
+            count += 1;
+            if (true) {
+                let d = new Date(elem["time"]);
+                lb.push(d.toTimeString().split(" ")[0]);
+                dt.push(elem.temperature);
+            }
+    
+        });
+
+        self.setState({
+            data: {
+                labels: lb.reverse(),
+                datasets: [{
+                    data: dt.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
+                },{
+                    data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                },{
+                    data: [Math.min(...dt) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+                }]
+            }
+        })
+
+        console.log("Success getting init temp!");
+    }
+
+
+    // get init data of state
     getInitData = () => {
         const self = this;
 
@@ -178,47 +219,49 @@ class Dashboard extends Component{
         self._getStateApi();
 
         // get init temperature
-        getAdafruitFetch('temp', 8).then(jsonobj => {
-            console.log("temp data: ", jsonobj);
-            // // get first data
-            // let t = JSON.parse(jsonobj[0].value).data.split('-')[0];
-            // self.setState({temp: t});
+        // getAdafruitFetch('temp', 8).then(jsonobj => {
+        //     console.log("temp data: ", jsonobj);
+        //     // // get first data
+        //     // let t = JSON.parse(jsonobj[0].value).data.split('-')[0];
+        //     // self.setState({temp: t});
 
-            // get 8 data for chart
-            var lb = [];
-            var dt = [];
+        //     // get 8 data for chart
+        //     var lb = [];
+        //     var dt = [];
 
-            var count = 0;
+        //     var count = 0;
         
-            jsonobj.forEach(elem => {
-                count += 1;
-                if (true) {
-                    let d = new Date(elem["created_at"]);
-                    lb.push(d.toTimeString().split(" ")[0]);
-                    dt.push(parseInt(JSON.parse(elem["value"])["data"]));
-                }
+        //     jsonobj.forEach(elem => {
+        //         count += 1;
+        //         if (true) {
+        //             let d = new Date(elem["created_at"]);
+        //             lb.push(d.toTimeString().split(" ")[0]);
+        //             dt.push(parseInt(JSON.parse(elem["value"])["data"]));
+        //         }
         
-            });
+        //     });
 
-            self.setState({
-                data: {
-                    labels: lb.reverse(),
-                    datasets: [{
-                        data: dt.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
-                    },{
-                        data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
-                    },{
-                        data: [Math.min(...dt) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
-                    }]
-                }
-            })
+        //     self.setState({
+        //         data: {
+        //             labels: lb.reverse(),
+        //             datasets: [{
+        //                 data: dt.reverse(), color: (opacity = 1) => `rgba(0,87,146, ${opacity})`,
+        //             },{
+        //                 data: [Math.max(...dt) + TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+        //             },{
+        //                 data: [Math.min(...dt) - TEMPERATURE_CHART_GAP], color: (opacity = 0) => `rgba(237,249,252, ${opacity})`
+        //             }]
+        //         }
+        //     })
 
-            console.log("Success getting init temp!");
+        //     console.log("Success getting init temp!");
 
-        })
-        .catch(err => {
-            console.warn(err);
-        })
+        // })
+        // .catch(err => {
+        //     console.warn(err);
+        // })
+        
+        // console.log("Get init data successfully!");
 
 
         // get init relay
