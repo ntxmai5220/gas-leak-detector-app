@@ -20,7 +20,7 @@ import io from 'socket.io-client';
 
 
 const TEMPERATURE_CHART_GAP = 1;
-const TEMP_CAP = 45;
+const TEMP_CAP = 40;
 
 
 class Dashboard extends Component{
@@ -506,7 +506,7 @@ class Dashboard extends Component{
             else{
                 console.warn(responseJson);
                 Alert.alert("Thông báo!!!",responseJson.message);
-                self._setAlarmState(true);
+                self._getStateApi();
             }
         })
         .catch((error) =>{
@@ -550,7 +550,7 @@ class Dashboard extends Component{
             else{
                 console.warn(responseJson);
                 Alert.alert("Thông báo!!!",responseJson.message);
-                self._setAlarmState(false);
+                self._getStateApi();
             }
         })
         .catch((error) =>{
