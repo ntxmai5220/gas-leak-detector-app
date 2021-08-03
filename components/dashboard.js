@@ -138,7 +138,7 @@ class Dashboard extends Component{
 		});
 		socket.on("alarm", obj => {
             console.log("alarm: ", obj);
-            if (obj.gasOverThreshold || obj.temperature > TEMP_CAP) {
+            if (obj.gasOverThreshold || obj.temperature >= TEMP_CAP) {
                 // self.setState({warning: true});
                 self._getStateApi();
             }
@@ -341,13 +341,17 @@ class Dashboard extends Component{
         let dt = this.state.data.datasets[0].data;
         let lb = this.state.data.labels;
         
-        dt = dt.slice(1);
+        if (dt.length >= 8) {
+            dt = dt.slice(1);
+            lb = lb.slice(1);
+        }
+
+
         dt.push(temp);
         
         const thistime = new Date();
         console.log(thistime.toTimeString())
 
-        lb = lb.slice(1);
         lb.push(thistime.toTimeString().split(" ")[0]);
 
         
