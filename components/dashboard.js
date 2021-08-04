@@ -128,13 +128,21 @@ class Dashboard extends Component{
             // update chart
             self._realtimeChartUpdate(parseInt(t));
             
-            if (t > TEMP_CAP) self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
+            if (t > TEMP_CAP)  {
+                self.schedulePushNotification("Cảm biến nhiệt " + t +"*C");
+                self._getStateApi();
+                // self.setState({warning: true});
+            }
 		});
 		socket.on("gas", obj => {
             let datavalue = obj.data;
             console.log("gas: ", datavalue)
 
-            if (datavalue == 1) self.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
+            if (datavalue == 1) {
+                self.schedulePushNotification("Cảm biến nồng độ gas vượt ngưỡng");
+                self._getStateApi();
+                // self.setState({warning: true});
+            }
 		});
 		socket.on("alarm", obj => {
             console.log("alarm: ", obj);
